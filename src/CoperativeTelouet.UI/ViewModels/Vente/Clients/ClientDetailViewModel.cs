@@ -151,7 +151,7 @@ public partial class ClientDetailViewModel : ViewModelBase
 
             if (_editingId is null)
             {
-                var created = await _clients.CreateClientAsync(new CreateTiersDto(
+                await _clients.CreateClientAsync(new CreateTiersDto(
                     type,
                     Nom.Trim(),
                     NullIfEmpty(Ice),
@@ -161,9 +161,6 @@ public partial class ClientDetailViewModel : ViewModelBase
                     NullIfEmpty(Email),
                     NullIfEmpty(ConditionsPaiement),
                     Actif));
-                _editingId = created.Id;
-                OnPropertyChanged(nameof(IsNew));
-                ShowCompte = true;
             }
             else
             {
@@ -179,14 +176,8 @@ public partial class ClientDetailViewModel : ViewModelBase
                     Actif));
             }
 
-            if (_editingId is int id)
-            {
-                var compte = await _clients.GetCompteAsync(id);
-                SoldeActuel = compte.SoldeActuel;
-                CompteLignes = new ObservableCollection<ClientCompteLigneDto>(compte.Lignes);
-            }
-
             await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
+            _host?.ShowList();
         }
         catch (ValidationException ex)
         {
