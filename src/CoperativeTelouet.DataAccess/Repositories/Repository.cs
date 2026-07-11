@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CoperativeTelouet.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,11 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
     public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
         => await Set.AsNoTracking().ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<T>> FindAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default)
+        => await Set.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
 
     public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {

@@ -2,6 +2,7 @@ using AutoMapper;
 using CoperativeTelouet.DataAccess.Repositories;
 using CoperativeTelouet.Domain.Common;
 using FluentValidation;
+using System.Linq.Expressions;
 
 namespace CoperativeTelouet.Business.Services;
 
@@ -34,6 +35,11 @@ public class GenericService<TEntity, TDto, TCreateDto, TUpdateDto>
 
     public async Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken cancellationToken = default)
         => Mapper.Map<IReadOnlyList<TDto>>(await Repo.GetAllAsync(cancellationToken));
+
+    public async Task<IReadOnlyList<TDto>> FindAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
+        => Mapper.Map<IReadOnlyList<TDto>>(await Repo.FindAsync(predicate, cancellationToken));
 
     public async Task<TDto> CreateAsync(TCreateDto dto, CancellationToken cancellationToken = default)
     {

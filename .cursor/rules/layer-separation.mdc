@@ -23,7 +23,8 @@ Layers: **UI → Business → DataAccess → Domain**. Dependencies point inward
 - **Never** put business rules, pricing, stock movements, document numbering, or validation orchestration in ViewModels — call Business services instead.
 - **Never** let UI depend on DataAccess types except thin startup wiring (DI registration, `MigrateAsync` at launch). Prefer calling Business from ViewModels.
 - **Prefer** new features as Business service methods (+ DTOs/validators) first; UI only binds and invokes.
-- Repositories stay dumb CRUD/query helpers; **rich behavior lives in Business services** (`GenericService` or specialized services like `StockageService`).
+- Repositories stay dumb CRUD/query helpers; **rich behavior lives in Business services**.
+- Specialized services (`ClientService`, `StockageService`, …) **must inherit `GenericService`**, never mark its members `virtual`, and add custom methods that call inherited CRUD; see `generic-service-inheritance.mdc`.
 - Domain entities stay persistence-agnostic; do not decorate them with UI or EF attributes when Fluent API can own mapping.
 
 ## Examples
