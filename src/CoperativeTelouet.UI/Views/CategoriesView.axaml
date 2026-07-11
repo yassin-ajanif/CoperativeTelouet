@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CoperativeTelouet.UI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="CoperativeTelouet.UI.Views.CategoriesView"
+             x:DataType="vm:CategoriesViewModel">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16" RowSpacing="12">
+    <DockPanel Grid.Row="0">
+      <TextBlock Text="Catégories"
+                 FontSize="22"
+                 FontWeight="SemiBold"
+                 VerticalAlignment="Center" />
+      <StackPanel Orientation="Horizontal"
+                  Spacing="8"
+                  HorizontalAlignment="Right">
+        <Button Content="Actualiser" Command="{Binding LoadCommand}" />
+        <Button Content="Nouveau" Command="{Binding NewCommand}" />
+      </StackPanel>
+    </DockPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,280" ColumnSpacing="16">
+      <DataGrid Grid.Column="0"
+                ItemsSource="{Binding Items}"
+                SelectedItem="{Binding SelectedItem}"
+                IsReadOnly="True"
+                AutoGenerateColumns="False"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="60" />
+          <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="*" />
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <Border Grid.Column="1"
+              Padding="16"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+              BorderThickness="1"
+              CornerRadius="4">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Détail" FontWeight="SemiBold" FontSize="16" />
+          <TextBox Watermark="Nom de la catégorie"
+                   Text="{Binding Nom}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Enregistrer"
+                    Command="{Binding SaveCommand}"
+                    Classes="accent" />
+            <Button Content="Supprimer"
+                    Command="{Binding DeleteCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <TextBlock Grid.Row="2"
+               Text="{Binding ErrorMessage}"
+               Foreground="IndianRed"
+               TextWrapping="Wrap"
+               IsVisible="{Binding HasError}" />
+  </Grid>
+</UserControl>

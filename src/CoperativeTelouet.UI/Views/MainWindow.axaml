@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CoperativeTelouet.UI.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        x:Class="CoperativeTelouet.UI.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Coperative Telouet — Gestion Commerciale"
+        Width="1100"
+        Height="700"
+        MinWidth="800"
+        MinHeight="500">
+
+  <DockPanel>
+    <Border DockPanel.Dock="Top"
+            Padding="12,8"
+            Background="#1B4332">
+      <DockPanel>
+        <TextBlock Text="Coperative Telouet"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Foreground="White"
+                   VerticalAlignment="Center" />
+        <TextBlock Text="{Binding StatusMessage}"
+                   Foreground="#D8F3DC"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center" />
+      </DockPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Left"
+            Width="200"
+            Padding="8"
+            Background="#F1FAEE">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Catalogue"
+                   Margin="8,8,8,4"
+                   Opacity="0.7"
+                   FontSize="12" />
+        <Button Content="Catégories"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Left"
+                Command="{Binding NavigateToCategoriesCommand}" />
+      </StackPanel>
+    </Border>
+
+    <ContentControl Content="{Binding CurrentPage}" Margin="0" />
+  </DockPanel>
+</Window>
