@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.Services.Client;
+using CoperativeTelouet.UI.Services;
 using FluentValidation;
 
 namespace CoperativeTelouet.UI.ViewModels.Vente.Clients;
@@ -10,6 +11,7 @@ namespace CoperativeTelouet.UI.ViewModels.Vente.Clients;
 public partial class ClientDetailViewModel : ViewModelBase
 {
     private readonly IClientService _clients;
+    private readonly IUserDialogService _dialogs;
     private ClientsViewModel? _host;
     private int? _editingId;
 
@@ -65,9 +67,10 @@ public partial class ClientDetailViewModel : ViewModelBase
 
     public bool IsNew => _editingId is null;
 
-    public ClientDetailViewModel(IClientService clients)
+    public ClientDetailViewModel(IClientService clients, IUserDialogService dialogs)
     {
         _clients = clients;
+        _dialogs = dialogs;
     }
 
     public void AttachHost(ClientsViewModel host) => _host = host;
@@ -123,6 +126,7 @@ public partial class ClientDetailViewModel : ViewModelBase
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {
@@ -181,14 +185,19 @@ public partial class ClientDetailViewModel : ViewModelBase
                 SoldeActuel = compte.SoldeActuel;
                 CompteLignes = new ObservableCollection<ClientCompteLigneDto>(compte.Lignes);
             }
+
+            await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
         }
         catch (ValidationException ex)
         {
-            ErrorMessage = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            var msg = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            ErrorMessage = msg;
+            await _dialogs.ShowErrorAsync(msg);
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {
@@ -197,9 +206,9 @@ public partial class ClientDetailViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ExportPdf()
+    private async Task ExportPdf()
     {
-        ErrorMessage = "Export PDF bientôt disponible.";
+        await _dialogs.ShowErrorAsync("Export PDF bientôt disponible.");
     }
 
     private static string? NullIfEmpty(string? value) =>

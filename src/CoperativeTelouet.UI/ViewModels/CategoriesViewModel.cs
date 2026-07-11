@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.Services;
 using CoperativeTelouet.Domain.Entities;
+using CoperativeTelouet.UI.Services;
 using FluentValidation;
 
 namespace CoperativeTelouet.UI.ViewModels;
@@ -11,6 +12,7 @@ namespace CoperativeTelouet.UI.ViewModels;
 public partial class CategoriesViewModel : ViewModelBase
 {
     private readonly IGenericService<Categorie, CategorieDto, CreateCategorieDto, UpdateCategorieDto> _service;
+    private readonly IUserDialogService _dialogs;
 
     [ObservableProperty]
     private ObservableCollection<CategorieDto> _items = [];
@@ -30,9 +32,11 @@ public partial class CategoriesViewModel : ViewModelBase
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
     public CategoriesViewModel(
-        IGenericService<Categorie, CategorieDto, CreateCategorieDto, UpdateCategorieDto> service)
+        IGenericService<Categorie, CategorieDto, CreateCategorieDto, UpdateCategorieDto> service,
+        IUserDialogService dialogs)
     {
         _service = service;
+        _dialogs = dialogs;
         _ = LoadAsync();
     }
 
@@ -57,6 +61,7 @@ public partial class CategoriesViewModel : ViewModelBase
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {
@@ -91,14 +96,18 @@ public partial class CategoriesViewModel : ViewModelBase
 
             await LoadAsync();
             New();
+            await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
         }
         catch (ValidationException ex)
         {
-            ErrorMessage = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            var msg = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            ErrorMessage = msg;
+            await _dialogs.ShowErrorAsync(msg);
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {
@@ -119,10 +128,12 @@ public partial class CategoriesViewModel : ViewModelBase
             await _service.DeleteAsync(SelectedItem.Id);
             await LoadAsync();
             New();
+            await _dialogs.ShowSuccessAsync("Suppression réussie.");
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {

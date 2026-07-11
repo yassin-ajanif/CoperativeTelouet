@@ -12,6 +12,7 @@ using CoperativeTelouet.UI.ViewModels.Vente.Clients;
 using CoperativeTelouet.UI.ViewModels.Vente.Devis;
 using CoperativeTelouet.UI.ViewModels.Vente.Facturation;
 using CoperativeTelouet.UI.Views;
+using CoperativeTelouet.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -69,6 +70,7 @@ public partial class App : Application
         services.AddDataAccess(connectionString);
         services.AddBusiness();
 
+        services.AddSingleton<IUserDialogService, UserDialogService>();
         services.AddTransient<MainViewModel>();
         services.AddTransient<AccueilViewModel>();
         services.AddTransient<CategoriesViewModel>();

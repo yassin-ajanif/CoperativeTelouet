@@ -1,0 +1,69 @@
+---
+description: UI / Avalonia MVVM rules (file layout, dialogs, thin ViewModels, DI lifetimes)
+globs: src/CoperativeTelouet.UI/**/*.{cs,axaml}
+alwaysApply: true
+---
+
+# UI rules
+
+All UI / Avalonia / ViewModel conventions live in this file. When adding a new UI-related rule, append a section here — do not create a new `.mdc` file.
+
+## Thin UI
+
+- ViewModels bind and call Business services only — no `AppDbContext`, EF, or SQL.
+- No business calculations or validation orchestration in ViewModels (call Business; show results/dialogs).
+- UI may depend on DataAccess only for thin startup wiring (DI, `MigrateAsync` at launch).
+- All Avalonia UI (Views, dialogs, styles, converters) lives in `CoperativeTelouet.UI` only — never in Business/DataAccess/Domain.
+- Prefer XAML Views for dialogs/screens; keep `IUserDialogService` as a thin UI-layer orchestrator that opens those Views.
+
+## One ViewModel / one View per file
+
+- Exactly **one** ViewModel class per `.cs` file (name matches type).
+- Exactly **one** View per `.axaml` (+ matching `.axaml.cs` code-behind only).
+- Keep 1:1 pairs: `FooViewModel` ↔ `FooView` under matching `ViewModels/` and `Views/` folders.
+- Split host/list/detail into separate files (`ClientsViewModel`, `ClientsListViewModel`, `ClientDetailViewModel`).
+- Don't put multiple ViewModels or multiple Views in one file.
+- Don't embed a full second screen in another view's markup — compose via host + `ContentControl`.
+- Shared UI types (enums, converters): **one public type per file**.
+
+```
+ViewModels/Vente/Clients/ClientsListViewModel.cs   ✅
+Views/Vente/Clients/ClientsListView.axaml          ✅
+// ❌ three ViewModels in one ClientsViewModel.cs
+```
+
+## Dialogs after database write operations
+
+Every UI action that writes/mutates the database must show a dialog via `IUserDialogService`.
+
+- **Success:** `ShowSuccessAsync(...)` after create / update / delete / toggle (and similar writes).
+- **Failure:** `ShowErrorAsync(...)`.
+- On `FluentValidation.ValidationException`, join `ex.Errors` → `ErrorMessage` strings into the error dialog.
+- Other exceptions: show `ex.Message`.
+- Don't rely only on an inline red `TextBlock` for writes.
+- Don't show success dialogs for pure reads (`Load` / `Get`) unless clearly needed.
+- Inject `IUserDialogService` into ViewModels; keep dialog chrome out of Business.
+
+```csharp
+try
+{
+    await _service.CreateAsync(...);
+    await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
+}
+catch (ValidationException ex)
+{
+    await _dialogs.ShowErrorAsync(
+        string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage)));
+}
+catch (Exception ex)
+{
+    await _dialogs.ShowErrorAsync(ex.Message);
+}
+```
+
+## ViewModel DI lifetimes
+
+- Prefer **Transient** for ViewModels (fresh state per navigation: list/detail, search, form fields).
+- Avoid Singleton ViewModels that hold mutable screen state.
+
+**Rule of thumb:** one file per View/ViewModel, thin UI, always dialog feedback on DB writes.

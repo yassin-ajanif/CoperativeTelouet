@@ -1,0 +1,96 @@
+---
+description: Business layer rules (layering, GenericService, AutoMapper, FluentValidation, domain services)
+globs: src/CoperativeTelouet.Business/**/*.cs
+alwaysApply: true
+---
+
+# Business rules
+
+All Business / Domain service conventions live in this file. When adding a new business-related rule, append a section here — do not create a new `.mdc` file.
+
+## No UI code in Business (hard rule)
+
+- **Never** put Avalonia / WPF / WinForms / HTML / XAML, `Window`, `UserControl`, buttons, dialogs, brushes, or any presentation types in `CoperativeTelouet.Business` (or Domain).
+- **Never** reference `CoperativeTelouet.UI` from Business.
+- **Never** show message boxes or build UI from a business service — return results / throw `ValidationException`; the UI layer shows dialogs.
+- Business may contain French validation **messages** (strings) — that is not UI chrome.
+
+```csharp
+// ❌ BAD — UI inside Business
+public class ClientService {
+    public void Save(...) {
+        MessageBox.Show("OK"); // or any Avalonia Window
+    }
+}
+
+// ✅ GOOD — Business returns/throws; UI shows dialog
+await _clients.CreateClientAsync(dto); // UI catches and calls IUserDialogService
+```
+
+## Layer separation
+
+Layers: **UI → Business → DataAccess → Domain**. Dependencies point inward only. Put as much product logic as possible in Business so the UI stays replaceable.
+
+| Layer | Owns | Does not own |
+|-------|------|--------------|
+| **Domain** | Entities, enums, pure rules | EF, DTOs, UI, services |
+| **DataAccess** | DbContext, EF, migrations, repositories | Business rules, ViewModels |
+| **Business** | Services, DTOs, validators, mapping, workflows | DbContext, EF LINQ, SQL, Avalonia |
+| **UI** | Views, ViewModels, dialogs, binding | Direct DB access, business calculations |
+
+- Never put pricing, stock, document numbering, or validation orchestration in ViewModels — call Business services.
+- Prefer new features as Business methods (+ DTOs/validators) first; UI only binds and invokes.
+- Business → `IRepository<>` + Domain; no Avalonia references.
+
+```csharp
+// ❌ BAD — business rule in ViewModel
+if (etat == EtatBac.Plein && chambreId is null) { /* reject */ }
+
+// ✅ GOOD — ViewModel calls Business
+await _categorieService.CreateAsync(new CreateCategorieDto(Nom));
+```
+
+## GenericService (required pattern)
+
+Specialized services must **inherit** `GenericService<TEntity, TDto, TCreateDto, TUpdateDto>` and reuse its CRUD.
+
+- **Do** add **custom methods** (`CreateClientAsync`, `GetClientsAsync`, …) that call inherited `CreateAsync` / `UpdateAsync` / `GetByIdAsync` / `GetAllAsync` / `FindAsync`.
+- **Do** keep domain interfaces standalone (e.g. `IClientService`) — do **not** extend `IGenericService` on specialized APIs.
+- **Don't** mark any `GenericService` member `virtual` / `abstract` / `override` — never override the base.
+- **Don't** reimplement CRUD, validators, or mapping beside GenericService.
+- Simple catalog entities: closed `GenericService<…>` DI registration is enough (no subclass).
+
+```csharp
+// ✅ GOOD
+public async Task<TiersDto> CreateClientAsync(CreateTiersDto dto, CancellationToken ct = default)
+{
+    EnsureClientType(dto.Type);
+    return await CreateAsync(dto, ct);
+}
+
+// ❌ BAD
+public override async Task<TiersDto> CreateAsync(...) { ... }
+```
+
+## AutoMapper
+
+- Use AutoMapper for DTO ↔ entity and DTO ↔ DTO — declare maps in `Mapping/*Profile.cs`.
+- Prefer `Mapper.Map<T>(…)` over hand-copying properties.
+- Use record `with { … }` after map when only one/few fields change.
+
+```csharp
+var update = Mapper.Map<UpdateTiersDto>(dto) with { Actif = !dto.Actif };
+await UpdateClientAsync(id, update, ct);
+```
+
+## Filtered reads from Business
+
+- Prefer `FindAsync(predicate)` (via GenericService or `Repo`) so SQL applies `WHERE`.
+- Never `GetAllAsync()` then `.Where` in memory for large tables.
+
+## FluentValidation / field rules
+
+- One `AbstractValidator<T>` per Create/Update DTO; invoked from GenericService / services.
+- **ICE (Tiers):** optional (empty/null allowed). If provided, exactly **15** characters.
+
+**Rule of thumb:** GenericService for CRUD (never virtualize), custom methods for domain rules, AutoMapper for mapping, validators for input shape.

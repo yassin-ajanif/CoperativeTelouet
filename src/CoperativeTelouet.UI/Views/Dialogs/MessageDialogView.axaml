@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Dialogs"
+        x:Class="CoperativeTelouet.UI.Views.Dialogs.MessageDialogView"
+        x:DataType="vm:MessageDialogViewModel"
+        Title="{Binding Title}"
+        Width="420"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+  <Border Padding="20">
+    <StackPanel Spacing="16">
+      <TextBlock Text="{Binding Title}"
+                 FontSize="18"
+                 FontWeight="SemiBold"
+                 Foreground="#B91C1C"
+                 IsVisible="{Binding IsError}" />
+      <TextBlock Text="{Binding Title}"
+                 FontSize="18"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource BrandGreen}"
+                 IsVisible="{Binding !IsError}" />
+
+      <TextBlock Text="{Binding Message}"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource BrandBlack}" />
+
+      <Button Content="OK"
+              Classes="accent"
+              HorizontalAlignment="Right"
+              MinWidth="88"
+              Command="{Binding OkCommand}" />
+    </StackPanel>
+  </Border>
+</Window>

@@ -3,12 +3,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.Services.Client;
+using CoperativeTelouet.UI.Services;
+using FluentValidation;
 
 namespace CoperativeTelouet.UI.ViewModels.Vente.Clients;
 
 public partial class ClientsListViewModel : ViewModelBase
 {
     private readonly IClientService _clients;
+    private readonly IUserDialogService _dialogs;
     private ClientsViewModel? _host;
     private IReadOnlyList<TiersDto> _all = [];
 
@@ -50,9 +53,10 @@ public partial class ClientsListViewModel : ViewModelBase
     public bool CanGoNext => PageIndex < TotalPages;
     public string CountLabel => TotalCount <= 1 ? $"{TotalCount} élément" : $"{TotalCount} éléments";
 
-    public ClientsListViewModel(IClientService clients)
+    public ClientsListViewModel(IClientService clients, IUserDialogService dialogs)
     {
         _clients = clients;
+        _dialogs = dialogs;
     }
 
     public void AttachHost(ClientsViewModel host) => _host = host;
@@ -79,6 +83,7 @@ public partial class ClientsListViewModel : ViewModelBase
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {
@@ -115,10 +120,18 @@ public partial class ClientsListViewModel : ViewModelBase
             ErrorMessage = null;
             await _clients.ToggleActifAsync(SelectedItem.Id);
             await LoadAsync();
+            await _dialogs.ShowSuccessAsync("Statut du client mis à jour.");
+        }
+        catch (ValidationException ex)
+        {
+            var msg = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            ErrorMessage = msg;
+            await _dialogs.ShowErrorAsync(msg);
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
         }
         finally
         {

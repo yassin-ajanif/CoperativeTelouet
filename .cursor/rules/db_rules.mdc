@@ -1,0 +1,52 @@
+---
+description: Database & DataAccess rules (EF, repositories, SQLite→Postgres portability, query filtering)
+globs: src/CoperativeTelouet.DataAccess/**/*.cs
+alwaysApply: true
+---
+
+# DB rules
+
+All database / DataAccess conventions live in this file. When adding a new DB-related rule, append a section here — do not create a new `.mdc` file.
+
+## Layer boundary
+
+- EF Core, `AppDbContext`, `DbSet<>`, raw SQL, and provider wiring (`UseSqlite` / `UseNpgsql`) exist **only** in `CoperativeTelouet.DataAccess`.
+- Repositories stay dumb CRUD/query helpers; rich business behavior stays in Business.
+- Domain entities stay persistence-agnostic; map with Fluent API, not EF attributes on entities when avoidable.
+
+## Repository queries
+
+- Use `FindAsync(Expression<Func<T, bool>>)` so filters run in SQL (`WHERE`), not `GetAllAsync()` then `.Where` in memory.
+- `GetByIdAsync` is primary-key lookup only — not “by foreign key / client id”.
+- Funnel all DB access through repositories; do not open ad-hoc connections from Business/UI.
+
+## SQLite → PostgreSQL portability
+
+The app ships on SQLite for the single-user MVP but must migrate cleanly to PostgreSQL later. Keep the switch a one-line provider swap (`UseSqlite` → `UseNpgsql`) plus a `pgloader` data copy.
+
+### Queries
+- Don't write raw SQL with SQLite dialect — use LINQ/EF.
+- Don't use SQLite-specific SQL functions (`datetime()`, `strftime()`, `json_extract()`, `GROUP_CONCAT`).
+- Don't rely on SQLite `LIKE` being case-insensitive — Postgres `LIKE` is case-sensitive (use `ILIKE` / `EF.Functions.ILike`).
+- Don't leak the provider into UI/Business — keep `UseSqlite`/`Npgsql` only in DataAccess.
+
+### Types & schema
+- Use real `.NET` types (`int`/`decimal`/`DateTime`/`bool`) — never store them as TEXT.
+- Prefer `DateTime.UtcNow`; Postgres distinguishes `timestamp` vs `timestamptz`.
+- Set decimal precision explicitly on money/qty fields (`HasPrecision`).
+- Let EF own table/column names; don't hardcode SQLite-style identifiers.
+
+### EF configuration
+- Prefer Fluent API migrations/config over hand-written provider-specific SQL.
+- Avoid `HasColumnType("TEXT"/"INTEGER")` unless necessary; prefer provider-agnostic mappings.
+- Define CHECK constraints in Fluent API so they regenerate on Postgres.
+- Seed with EF `HasData` or provider-agnostic seeding — no SQLite-only tricks.
+
+### Keys
+- Let EF handle identity/sequences; don't assume SQLite `rowid` or recycle PKs in app logic.
+
+### Hygiene
+- Connection strings and `Data Source=...` stay in config, not business logic.
+- Once the schema stabilizes, validate migrations against Postgres once to catch surprises.
+
+**Rule of thumb:** code against EF abstractions, real .NET types, DB specifics only in DataAccess.

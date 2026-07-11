@@ -34,8 +34,8 @@
           <TextBlock Text="Nom" Opacity="0.7" FontSize="12" />
           <TextBox Text="{Binding Nom}" Watermark="Nom" />
 
-          <TextBlock Text="ICE" Opacity="0.7" FontSize="12" />
-          <TextBox Text="{Binding Ice}" Watermark="ICE" />
+          <TextBlock Text="ICE (optionnel)" Opacity="0.7" FontSize="12" />
+          <TextBox Text="{Binding Ice}" Watermark="15 caractères ou vide" MaxLength="15" />
 
           <TextBlock Text="Adresse" Opacity="0.7" FontSize="12" />
           <TextBox Text="{Binding Adresse}" Watermark="Adresse" />
