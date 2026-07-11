@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using CoperativeTelouet.Business;
-using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.UI.ViewModels;
 using CoperativeTelouet.UI.ViewModels.Vente.Avoirs;
 using CoperativeTelouet.UI.ViewModels.Vente.BonsCommande;
@@ -31,7 +30,7 @@ public partial class App : Application
     public override async void OnFrameworkInitializationCompleted()
     {
         _services = BuildServiceProvider();
-        await DatabaseInitializer.MigrateAsync(_services);
+        await _services.GetRequiredService<IAppDatabaseInitializer>().InitializeAsync();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -67,8 +66,7 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddDataAccess(connectionString);
-        services.AddBusiness();
+        services.AddBusiness(connectionString);
 
         services.AddSingleton<IUserDialogService, UserDialogService>();
         services.AddTransient<MainViewModel>();

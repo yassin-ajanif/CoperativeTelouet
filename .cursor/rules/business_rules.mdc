@@ -41,6 +41,7 @@ Layers: **UI → Business → DataAccess → Domain**. Dependencies point inward
 - Never put pricing, stock, document numbering, or validation orchestration in ViewModels — call Business services.
 - Prefer new features as Business methods (+ DTOs/validators) first; UI only binds and invokes.
 - Business → `IRepository<>` + Domain; no Avalonia references.
+- **UI must never call DataAccess** — only Business. `AddBusiness(connectionString)` registers DataAccess internally; expose startup via `IAppDatabaseInitializer`, not DataAccess types.
 
 ```csharp
 // ❌ BAD — business rule in ViewModel

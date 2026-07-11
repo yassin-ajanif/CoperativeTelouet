@@ -13,6 +13,7 @@ All database / DataAccess conventions live in this file. When adding a new DB-re
 - EF Core, `AppDbContext`, `DbSet<>`, raw SQL, and provider wiring (`UseSqlite` / `UseNpgsql`) exist **only** in `CoperativeTelouet.DataAccess`.
 - Repositories stay dumb CRUD/query helpers; rich business behavior stays in Business.
 - Domain entities stay persistence-agnostic; map with Fluent API, not EF attributes on entities when avoidable.
+- **UI never references or calls DataAccess** — only Business may call repositories / `DatabaseInitializer` / `AddDataAccess`.
 
 ## Repository queries
 

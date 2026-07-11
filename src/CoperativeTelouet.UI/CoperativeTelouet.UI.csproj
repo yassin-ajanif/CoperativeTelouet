@@ -34,6 +34,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoperativeTelouet.Business\CoperativeTelouet.Business.csproj" />
-    <ProjectReference Include="..\CoperativeTelouet.DataAccess\CoperativeTelouet.DataAccess.csproj" />
   </ItemGroup>
 </Project>

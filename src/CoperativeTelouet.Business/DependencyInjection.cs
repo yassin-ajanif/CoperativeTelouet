@@ -3,6 +3,7 @@ using CoperativeTelouet.Business.Mapping;
 using CoperativeTelouet.Business.Services;
 using CoperativeTelouet.Business.Services.Client;
 using CoperativeTelouet.Business.Services.Stockage;
+using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.Domain.Entities;
 using CoperativeTelouet.Domain.Entities.Stockage;
 using FluentValidation;
@@ -13,10 +14,14 @@ namespace CoperativeTelouet.Business;
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registers AutoMapper, FluentValidation (per-DTO validators), and business services.
+    /// Registers DataAccess (via connection string), AutoMapper, FluentValidation, and business services.
+    /// UI should call only this — never <c>AddDataAccess</c> directly.
     /// </summary>
-    public static IServiceCollection AddBusiness(this IServiceCollection services)
+    public static IServiceCollection AddBusiness(this IServiceCollection services, string connectionString)
     {
+        services.AddDataAccess(connectionString);
+        services.AddSingleton<IAppDatabaseInitializer, AppDatabaseInitializer>();
+
         services.AddAutoMapper(typeof(CatalogProfile).Assembly);
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 

@@ -8,11 +8,27 @@ alwaysApply: true
 
 All UI / Avalonia / ViewModel conventions live in this file. When adding a new UI-related rule, append a section here — do not create a new `.mdc` file.
 
+## UI never calls DataAccess (hard rule)
+
+- **Never** reference `CoperativeTelouet.DataAccess` from the UI project (no project reference, no `using`).
+- **Never** call repositories, `AppDbContext`, `AddDataAccess`, `DatabaseInitializer`, EF types, or SQL from UI / ViewModels / `App.axaml.cs`.
+- UI talks **only** to Business: `AddBusiness(connectionString)`, `IAppDatabaseInitializer`, and Business services (`IClientService`, `IGenericService<…>`, etc.).
+- Startup migration: `await services.GetRequiredService<IAppDatabaseInitializer>().InitializeAsync();` — not DataAccess APIs.
+
+```csharp
+// ❌ BAD
+services.AddDataAccess(cs);
+await DatabaseInitializer.MigrateAsync(sp);
+
+// ✅ GOOD
+services.AddBusiness(cs);
+await sp.GetRequiredService<IAppDatabaseInitializer>().InitializeAsync();
+```
+
 ## Thin UI
 
 - ViewModels bind and call Business services only — no `AppDbContext`, EF, or SQL.
 - No business calculations or validation orchestration in ViewModels (call Business; show results/dialogs).
-- UI may depend on DataAccess only for thin startup wiring (DI, `MigrateAsync` at launch).
 - All Avalonia UI (Views, dialogs, styles, converters) lives in `CoperativeTelouet.UI` only — never in Business/DataAccess/Domain.
 - Prefer XAML Views for dialogs/screens; keep `IUserDialogService` as a thin UI-layer orchestrator that opens those Views.
 
@@ -66,4 +82,4 @@ catch (Exception ex)
 - Prefer **Transient** for ViewModels (fresh state per navigation: list/detail, search, form fields).
 - Avoid Singleton ViewModels that hold mutable screen state.
 
-**Rule of thumb:** one file per View/ViewModel, thin UI, always dialog feedback on DB writes.
+**Rule of thumb:** one file per View/ViewModel, thin UI (Business only — never DataAccess), always dialog feedback on DB writes.
