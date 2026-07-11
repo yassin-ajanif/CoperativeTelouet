@@ -13,6 +13,7 @@ public sealed class TypeTiersOptionConverter : IValueConverter
         {
             "LesDeux" => "Client & Fournisseur",
             "Client" => "Client",
+            "Fournisseur" => "Fournisseur",
             _ => value?.ToString(),
         };
 

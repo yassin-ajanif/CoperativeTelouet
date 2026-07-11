@@ -87,6 +87,8 @@ public partial class App : Application
         services.AddTransient<FacturationViewModel>();
         services.AddTransient<AvoirsViewModel>();
         services.AddTransient<FournisseursViewModel>();
+        services.AddTransient<FournisseursListViewModel>();
+        services.AddTransient<FournisseurDetailViewModel>();
         services.AddTransient<DevisAchatViewModel>();
         services.AddTransient<BonsCommandeAchatViewModel>();
         services.AddTransient<BonsReceptionViewModel>();

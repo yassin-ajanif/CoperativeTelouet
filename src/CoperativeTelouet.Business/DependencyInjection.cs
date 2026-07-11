@@ -2,6 +2,7 @@ using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.Mapping;
 using CoperativeTelouet.Business.Services;
 using CoperativeTelouet.Business.Services.Client;
+using CoperativeTelouet.Business.Services.Fournisseur;
 using CoperativeTelouet.Business.Services.Stockage;
 using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.Domain.Entities;
@@ -61,6 +62,7 @@ public static class DependencyInjection
         // entities with custom logic: register the concrete service
         services.AddScoped<StockageService>();
         services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<IFournisseurService, FournisseurService>();
 
         return services;
     }

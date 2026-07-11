@@ -3,9 +3,5 @@
              xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Achat.Fournisseurs"
              x:Class="CoperativeTelouet.UI.Views.Achat.Fournisseurs.FournisseursView"
              x:DataType="vm:FournisseursViewModel">
-  <Border Margin="16" Padding="24" Background="White" CornerRadius="8"
-          BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
-    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
-               Foreground="{DynamicResource BrandBlack}" />
-  </Border>
+  <ContentControl Content="{Binding Content}" />
 </UserControl>
