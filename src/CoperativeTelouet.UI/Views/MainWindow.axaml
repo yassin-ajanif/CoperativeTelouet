@@ -101,6 +101,48 @@
                     Command="{Binding NavigateToAvoirsCommand}" />
           </StackPanel>
 
+          <!-- Achat -->
+          <Button Classes="nav-section"
+                  Command="{Binding ToggleAchatCommand}">
+            <DockPanel>
+              <TextBlock Text="{Binding AchatChevron}"
+                         DockPanel.Dock="Left"
+                         Width="16"
+                         FontSize="10"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="Achat" VerticalAlignment="Center" />
+            </DockPanel>
+          </Button>
+
+          <StackPanel Spacing="4"
+                      Margin="12,0,0,0"
+                      IsVisible="{Binding IsAchatExpanded}">
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsFournisseursSelected}"
+                    Content="Fournisseurs"
+                    Command="{Binding NavigateToFournisseursCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsDevisAchatSelected}"
+                    Content="Devis"
+                    Command="{Binding NavigateToDevisAchatCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsBonsCommandeAchatSelected}"
+                    Content="Bons de commande"
+                    Command="{Binding NavigateToBonsCommandeAchatCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsBonsReceptionSelected}"
+                    Content="Bons de réception"
+                    Command="{Binding NavigateToBonsReceptionCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsFacturationAchatSelected}"
+                    Content="Facturation achat"
+                    Command="{Binding NavigateToFacturationAchatCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsAvoirFournisseurSelected}"
+                    Content="Avoir fournisseur"
+                    Command="{Binding NavigateToAvoirFournisseurCommand}" />
+          </StackPanel>
+
           <!-- Catalogue (existing CRUD) -->
           <Button Classes="nav-section"
                   Command="{Binding ToggleCatalogueCommand}">

@@ -1,5 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CoperativeTelouet.UI.ViewModels.Achat.Avoirs;
+using CoperativeTelouet.UI.ViewModels.Achat.BonsCommande;
+using CoperativeTelouet.UI.ViewModels.Achat.BonsReception;
+using CoperativeTelouet.UI.ViewModels.Achat.Devis;
+using CoperativeTelouet.UI.ViewModels.Achat.Facturation;
+using CoperativeTelouet.UI.ViewModels.Achat.Fournisseurs;
 using CoperativeTelouet.UI.ViewModels.Vente.Avoirs;
 using CoperativeTelouet.UI.ViewModels.Vente.BonsCommande;
 using CoperativeTelouet.UI.ViewModels.Vente.BonsLivraison;
@@ -28,12 +34,22 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsBonsLivraisonSelected))]
     [NotifyPropertyChangedFor(nameof(IsFacturationSelected))]
     [NotifyPropertyChangedFor(nameof(IsAvoirsSelected))]
+    [NotifyPropertyChangedFor(nameof(IsFournisseursSelected))]
+    [NotifyPropertyChangedFor(nameof(IsDevisAchatSelected))]
+    [NotifyPropertyChangedFor(nameof(IsBonsCommandeAchatSelected))]
+    [NotifyPropertyChangedFor(nameof(IsBonsReceptionSelected))]
+    [NotifyPropertyChangedFor(nameof(IsFacturationAchatSelected))]
+    [NotifyPropertyChangedFor(nameof(IsAvoirFournisseurSelected))]
     [NotifyPropertyChangedFor(nameof(IsCategoriesSelected))]
     private string _selectedNav = "Accueil";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VenteChevron))]
     private bool _isVenteExpanded = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AchatChevron))]
+    private bool _isAchatExpanded = true;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CatalogueChevron))]
@@ -46,9 +62,16 @@ public partial class MainViewModel : ViewModelBase
     public bool IsBonsLivraisonSelected => SelectedNav == "BonsLivraison";
     public bool IsFacturationSelected => SelectedNav == "Facturation";
     public bool IsAvoirsSelected => SelectedNav == "Avoirs";
+    public bool IsFournisseursSelected => SelectedNav == "Fournisseurs";
+    public bool IsDevisAchatSelected => SelectedNav == "DevisAchat";
+    public bool IsBonsCommandeAchatSelected => SelectedNav == "BonsCommandeAchat";
+    public bool IsBonsReceptionSelected => SelectedNav == "BonsReception";
+    public bool IsFacturationAchatSelected => SelectedNav == "FacturationAchat";
+    public bool IsAvoirFournisseurSelected => SelectedNav == "AvoirFournisseur";
     public bool IsCategoriesSelected => SelectedNav == "Categories";
 
     public string VenteChevron => IsVenteExpanded ? "▼" : "▶";
+    public string AchatChevron => IsAchatExpanded ? "▼" : "▶";
     public string CatalogueChevron => IsCatalogueExpanded ? "▼" : "▶";
 
     public MainViewModel(IServiceProvider services)
@@ -59,6 +82,9 @@ public partial class MainViewModel : ViewModelBase
 
     [RelayCommand]
     private void ToggleVente() => IsVenteExpanded = !IsVenteExpanded;
+
+    [RelayCommand]
+    private void ToggleAchat() => IsAchatExpanded = !IsAchatExpanded;
 
     [RelayCommand]
     private void ToggleCatalogue() => IsCatalogueExpanded = !IsCatalogueExpanded;
@@ -123,6 +149,60 @@ public partial class MainViewModel : ViewModelBase
         SelectedNav = "Avoirs";
         StatusMessage = "Vente · Avoirs";
         IsVenteExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToFournisseurs()
+    {
+        CurrentPage = _services.GetRequiredService<FournisseursViewModel>();
+        SelectedNav = "Fournisseurs";
+        StatusMessage = "Achat · Fournisseurs";
+        IsAchatExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToDevisAchat()
+    {
+        CurrentPage = _services.GetRequiredService<DevisAchatViewModel>();
+        SelectedNav = "DevisAchat";
+        StatusMessage = "Achat · Devis";
+        IsAchatExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToBonsCommandeAchat()
+    {
+        CurrentPage = _services.GetRequiredService<BonsCommandeAchatViewModel>();
+        SelectedNav = "BonsCommandeAchat";
+        StatusMessage = "Achat · Bons de commande";
+        IsAchatExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToBonsReception()
+    {
+        CurrentPage = _services.GetRequiredService<BonsReceptionViewModel>();
+        SelectedNav = "BonsReception";
+        StatusMessage = "Achat · Bons de réception";
+        IsAchatExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToFacturationAchat()
+    {
+        CurrentPage = _services.GetRequiredService<FacturationAchatViewModel>();
+        SelectedNav = "FacturationAchat";
+        StatusMessage = "Achat · Facturation achat";
+        IsAchatExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToAvoirFournisseur()
+    {
+        CurrentPage = _services.GetRequiredService<AvoirFournisseurViewModel>();
+        SelectedNav = "AvoirFournisseur";
+        StatusMessage = "Achat · Avoir fournisseur";
+        IsAchatExpanded = true;
     }
 
     [RelayCommand]

@@ -4,6 +4,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using CoperativeTelouet.Business;
 using CoperativeTelouet.UI.ViewModels;
+using CoperativeTelouet.UI.ViewModels.Achat.Avoirs;
+using CoperativeTelouet.UI.ViewModels.Achat.BonsCommande;
+using CoperativeTelouet.UI.ViewModels.Achat.BonsReception;
+using CoperativeTelouet.UI.ViewModels.Achat.Devis;
+using CoperativeTelouet.UI.ViewModels.Achat.Facturation;
+using CoperativeTelouet.UI.ViewModels.Achat.Fournisseurs;
 using CoperativeTelouet.UI.ViewModels.Vente.Avoirs;
 using CoperativeTelouet.UI.ViewModels.Vente.BonsCommande;
 using CoperativeTelouet.UI.ViewModels.Vente.BonsLivraison;
@@ -80,6 +86,12 @@ public partial class App : Application
         services.AddTransient<BonsLivraisonViewModel>();
         services.AddTransient<FacturationViewModel>();
         services.AddTransient<AvoirsViewModel>();
+        services.AddTransient<FournisseursViewModel>();
+        services.AddTransient<DevisAchatViewModel>();
+        services.AddTransient<BonsCommandeAchatViewModel>();
+        services.AddTransient<BonsReceptionViewModel>();
+        services.AddTransient<FacturationAchatViewModel>();
+        services.AddTransient<AvoirFournisseurViewModel>();
 
         return services.BuildServiceProvider();
     }
