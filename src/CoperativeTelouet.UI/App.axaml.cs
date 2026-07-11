@@ -5,6 +5,12 @@ using Avalonia.Markup.Xaml;
 using CoperativeTelouet.Business;
 using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.UI.ViewModels;
+using CoperativeTelouet.UI.ViewModels.Vente.Avoirs;
+using CoperativeTelouet.UI.ViewModels.Vente.BonsCommande;
+using CoperativeTelouet.UI.ViewModels.Vente.BonsLivraison;
+using CoperativeTelouet.UI.ViewModels.Vente.Clients;
+using CoperativeTelouet.UI.ViewModels.Vente.Devis;
+using CoperativeTelouet.UI.ViewModels.Vente.Facturation;
 using CoperativeTelouet.UI.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,7 +70,14 @@ public partial class App : Application
         services.AddBusiness();
 
         services.AddTransient<MainViewModel>();
+        services.AddTransient<AccueilViewModel>();
         services.AddTransient<CategoriesViewModel>();
+        services.AddTransient<ClientsViewModel>();
+        services.AddTransient<DevisViewModel>();
+        services.AddTransient<BonsCommandeViewModel>();
+        services.AddTransient<BonsLivraisonViewModel>();
+        services.AddTransient<FacturationViewModel>();
+        services.AddTransient<AvoirsViewModel>();
 
         return services.BuildServiceProvider();
     }

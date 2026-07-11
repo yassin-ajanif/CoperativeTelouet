@@ -8,8 +8,79 @@
     <local:ViewLocator />
   </Application.DataTemplates>
 
+  <Application.Resources>
+    <!-- GIE Pomme Telouet brand -->
+    <Color x:Key="BrandRedColor">#8B1A1A</Color>
+    <Color x:Key="BrandGreenColor">#6BAD2F</Color>
+    <Color x:Key="BrandBlackColor">#1A1A1A</Color>
+    <Color x:Key="BrandRedHoverColor">#A32222</Color>
+    <Color x:Key="BrandSurfaceColor">#F7F7F5</Color>
+    <Color x:Key="BrandSidebarColor">#FFFFFF</Color>
+    <Color x:Key="BrandBorderColor">#E2E2E0</Color>
+
+    <SolidColorBrush x:Key="BrandRed" Color="{StaticResource BrandRedColor}" />
+    <SolidColorBrush x:Key="BrandGreen" Color="{StaticResource BrandGreenColor}" />
+    <SolidColorBrush x:Key="BrandBlack" Color="{StaticResource BrandBlackColor}" />
+    <SolidColorBrush x:Key="BrandRedHover" Color="{StaticResource BrandRedHoverColor}" />
+    <SolidColorBrush x:Key="BrandSurface" Color="{StaticResource BrandSurfaceColor}" />
+    <SolidColorBrush x:Key="BrandSidebar" Color="{StaticResource BrandSidebarColor}" />
+    <SolidColorBrush x:Key="BrandBorder" Color="{StaticResource BrandBorderColor}" />
+  </Application.Resources>
+
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+    <!-- Sidebar nav item (inactive) -->
+    <Style Selector="Button.nav">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="12,8" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Background" Value="White" />
+      <Setter Property="Foreground" Value="{StaticResource BrandBlack}" />
+      <Setter Property="BorderBrush" Value="{StaticResource BrandBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.nav:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#F3F3F1" />
+    </Style>
+
+    <!-- Sidebar nav item (selected) — dark red from logo -->
+    <Style Selector="Button.nav.selected">
+      <Setter Property="Background" Value="{StaticResource BrandRed}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderBrush" Value="{StaticResource BrandRed}" />
+    </Style>
+    <Style Selector="Button.nav.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BrandRedHover}" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <!-- Section header (Vente, Achat, …) -->
+    <Style Selector="Button.nav-section">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="8,10" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource BrandBlack}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.nav-section:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- Primary action buttons -->
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="{StaticResource BrandRed}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderBrush" Value="{StaticResource BrandRed}" />
+    </Style>
+    <Style Selector="Button.accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BrandRedHover}" />
+    </Style>
   </Application.Styles>
 </Application>

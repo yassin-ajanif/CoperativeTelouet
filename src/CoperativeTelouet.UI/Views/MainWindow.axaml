@@ -3,48 +3,130 @@
         xmlns:vm="using:CoperativeTelouet.UI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="750"
         x:Class="CoperativeTelouet.UI.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="Coperative Telouet — Gestion Commerciale"
-        Width="1100"
-        Height="700"
-        MinWidth="800"
-        MinHeight="500">
+        Title="GIE Pomme Telouet — Gestion Commerciale"
+        Width="1200"
+        Height="750"
+        MinWidth="900"
+        MinHeight="560"
+        Background="{DynamicResource BrandSurface}">
 
   <DockPanel>
+    <!-- Top bar -->
     <Border DockPanel.Dock="Top"
             Padding="12,8"
-            Background="#1B4332">
+            Background="{DynamicResource BrandRed}"
+            BorderBrush="{DynamicResource BrandGreen}"
+            BorderThickness="0,0,0,3">
       <DockPanel>
-        <TextBlock Text="Coperative Telouet"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="White"
-                   VerticalAlignment="Center" />
+        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Image Source="avares://CoperativeTelouet.UI/Assets/gie-logo.png"
+                 Width="36" Height="36"
+                 Stretch="Uniform" />
+          <TextBlock Text="GIE Pomme Telouet"
+                     FontSize="18"
+                     FontWeight="SemiBold"
+                     Foreground="White"
+                     VerticalAlignment="Center" />
+        </StackPanel>
         <TextBlock Text="{Binding StatusMessage}"
-                   Foreground="#D8F3DC"
+                   Foreground="White"
+                   Opacity="0.85"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center" />
       </DockPanel>
     </Border>
 
+    <!-- Sidebar -->
     <Border DockPanel.Dock="Left"
-            Width="200"
-            Padding="8"
-            Background="#F1FAEE">
-      <StackPanel Spacing="4">
-        <TextBlock Text="Catalogue"
-                   Margin="8,8,8,4"
-                   Opacity="0.7"
-                   FontSize="12" />
-        <Button Content="Catégories"
-                HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Left"
-                Command="{Binding NavigateToCategoriesCommand}" />
-      </StackPanel>
+            Width="220"
+            Background="{DynamicResource BrandSidebar}"
+            BorderBrush="{DynamicResource BrandBorder}"
+            BorderThickness="0,0,1,0">
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="10,12" Spacing="4">
+          <TextBlock Text="Menu"
+                     Margin="8,0,8,8"
+                     FontSize="12"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource BrandBlack}"
+                     Opacity="0.55" />
+
+          <Button Classes="nav"
+                  Classes.selected="{Binding IsAccueilSelected}"
+                  Content="Accueil"
+                  Command="{Binding NavigateToAccueilCommand}" />
+
+          <!-- Vente -->
+          <Button Classes="nav-section"
+                  Command="{Binding ToggleVenteCommand}">
+            <DockPanel>
+              <TextBlock Text="{Binding VenteChevron}"
+                         DockPanel.Dock="Left"
+                         Width="16"
+                         FontSize="10"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="Vente" VerticalAlignment="Center" />
+            </DockPanel>
+          </Button>
+
+          <StackPanel Spacing="4"
+                      Margin="12,0,0,0"
+                      IsVisible="{Binding IsVenteExpanded}">
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsClientsSelected}"
+                    Content="Clients"
+                    Command="{Binding NavigateToClientsCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsDevisSelected}"
+                    Content="Devis"
+                    Command="{Binding NavigateToDevisCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsBonsCommandeSelected}"
+                    Content="Bons de commande"
+                    Command="{Binding NavigateToBonsCommandeCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsBonsLivraisonSelected}"
+                    Content="Bons de livraison"
+                    Command="{Binding NavigateToBonsLivraisonCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsFacturationSelected}"
+                    Content="Facturation"
+                    Command="{Binding NavigateToFacturationCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsAvoirsSelected}"
+                    Content="Avoirs"
+                    Command="{Binding NavigateToAvoirsCommand}" />
+          </StackPanel>
+
+          <!-- Catalogue (existing CRUD) -->
+          <Button Classes="nav-section"
+                  Command="{Binding ToggleCatalogueCommand}">
+            <DockPanel>
+              <TextBlock Text="{Binding CatalogueChevron}"
+                         DockPanel.Dock="Left"
+                         Width="16"
+                         FontSize="10"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="Catalogue" VerticalAlignment="Center" />
+            </DockPanel>
+          </Button>
+
+          <StackPanel Spacing="4"
+                      Margin="12,0,0,0"
+                      IsVisible="{Binding IsCatalogueExpanded}">
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsCategoriesSelected}"
+                    Content="Catégories"
+                    Command="{Binding NavigateToCategoriesCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
     </Border>
 
-    <ContentControl Content="{Binding CurrentPage}" Margin="0" />
+    <!-- Content -->
+    <ContentControl Content="{Binding CurrentPage}" />
   </DockPanel>
 </Window>

@@ -1,0 +1,55 @@
+---
+description: Keep business logic in Business, DB code in DataAccess, and UI thin/replaceable
+globs: **/*.cs
+alwaysApply: true
+---
+
+# Layer Separation of Concerns
+
+Layers: **UI → Business → DataAccess → Domain**. Dependencies point inward only. The UI may be replaced later (web, another desktop toolkit); put as much logic as possible in Business so a UI swap is mostly view/binding work, not a rewrite.
+
+## What goes where
+
+| Layer | Owns | Does not own |
+|-------|------|--------------|
+| **Domain** | Entities, enums, value rules with no I/O | EF, DTOs, UI, services |
+| **DataAccess** | `DbContext`, EF configs, migrations, repositories, DB provider wiring | Business rules, DTOs for UI, ViewModels |
+| **Business** | Services, DTOs, validators, mapping, orchestration, calculations, workflows | `DbContext`, EF LINQ, SQL, Avalonia/UI types |
+| **UI** | Views, ViewModels, navigation, binding, user prompts, displaying errors | Direct DB access, domain persistence logic, business calculations |
+
+## Hard rules
+
+- **Never** reference `AppDbContext`, `DbSet<>`, EF Core, or raw SQL outside `CoperativeTelouet.DataAccess`.
+- **Never** put business rules, pricing, stock movements, document numbering, or validation orchestration in ViewModels — call Business services instead.
+- **Never** let UI depend on DataAccess types except thin startup wiring (DI registration, `MigrateAsync` at launch). Prefer calling Business from ViewModels.
+- **Prefer** new features as Business service methods (+ DTOs/validators) first; UI only binds and invokes.
+- Repositories stay dumb CRUD/query helpers; **rich behavior lives in Business services** (`GenericService` or specialized services like `StockageService`).
+- Domain entities stay persistence-agnostic; do not decorate them with UI or EF attributes when Fluent API can own mapping.
+
+## Examples
+
+```csharp
+// ❌ BAD — DB in UI / ViewModel
+var cats = await _db.Categories.ToListAsync();
+
+// ❌ BAD — business rule in ViewModel
+if (etat == EtatBac.Plein && chambreId is null) { /* reject */ }
+
+// ✅ GOOD — ViewModel calls Business
+await _categorieService.CreateAsync(new CreateCategorieDto(Nom));
+
+// ✅ GOOD — workflow in Business, persistence via repository
+public async Task EnregistrerDepotAsync(CreateBonEntreeStockageDto dto, CancellationToken ct)
+{
+    // validate, compute balances, assign NumeroLot, update stock…
+    await _repo.AddAsync(entity, ct);
+}
+```
+
+## Dependency checklist
+
+- UI → Business (and Domain types only if needed for generics); no EF packages in UI feature code.
+- Business → DataAccess abstractions (`IRepository<>`) + Domain; no Avalonia references.
+- DataAccess → Domain only for entities; no Business/UI references.
+
+**Rule of thumb:** if the UI framework disappeared tomorrow, Business + DataAccess + Domain should still express the full product behavior.
