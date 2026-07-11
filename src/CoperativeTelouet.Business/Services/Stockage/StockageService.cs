@@ -2,28 +2,34 @@ using AutoMapper;
 using CoperativeTelouet.Business.DTOs.Stockage;
 using CoperativeTelouet.DataAccess.Repositories;
 using CoperativeTelouet.Domain.Entities.Stockage;
+using FluentValidation;
 
 namespace CoperativeTelouet.Business.Services.Stockage;
 
 public class StockageService
     : GenericService<BonEntreeStockage, BonEntreeStockageDto, CreateBonEntreeStockageDto, UpdateBonEntreeStockageDto>
 {
-    public StockageService(IRepository<BonEntreeStockage> repo, IMapper mapper)
-        : base(repo, mapper)
+    public StockageService(
+        IRepository<BonEntreeStockage> repo,
+        IMapper mapper,
+        IEnumerable<IValidator<CreateBonEntreeStockageDto>> createValidators,
+        IEnumerable<IValidator<UpdateBonEntreeStockageDto>> updateValidators)
+        : base(repo, mapper, createValidators, updateValidators)
     {
     }
 
-    // custom, non-generic operation — deposit flow needs the same transaction to:
-    //  - generate NumeroLot (when EtatBac = Plein)
-    //  - snapshot PrixParBacParJourApplique from AppSettings
-    //  - compute BacsVides/BacsPleins Avant/Apres for the client
-    //  - update StockBacsSociete (singleton)
-    public Task<BonEntreeStockageDto> EnregistrerDepotAsync(
+    /// <summary>
+    /// Deposit workflow: validate DTO shape, then (TODO) generate NumeroLot,
+    /// snapshot rate, compute balance snapshots, update StockBacsSociete in one transaction.
+    /// </summary>
+    public async Task<BonEntreeStockageDto> EnregistrerDepotAsync(
         CreateBonEntreeStockageDto dto,
         CancellationToken cancellationToken = default)
     {
-        // TODO: implement full deposit workflow (NumeroLot generation, snapshots,
-        // StockBacsSociete update) in the same transaction, then Mapper.Map<BonEntreeStockageDto>(entity).
-        throw new NotImplementedException();
+        await ValidateAsync(CreateValidator, dto, cancellationToken);
+
+        // TODO: implement full deposit workflow after shape validation.
+        throw new NotImplementedException(
+            "Implement NumeroLot, snapshots, and StockBacsSociete update in the same transaction.");
     }
 }

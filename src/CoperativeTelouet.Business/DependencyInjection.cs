@@ -4,6 +4,7 @@ using CoperativeTelouet.Business.Services;
 using CoperativeTelouet.Business.Services.Stockage;
 using CoperativeTelouet.Domain.Entities;
 using CoperativeTelouet.Domain.Entities.Stockage;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CoperativeTelouet.Business;
@@ -11,13 +12,12 @@ namespace CoperativeTelouet.Business;
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registers AutoMapper (scanning the Business assembly for profiles) and the
-    /// business services: closed generics for simple catalog entities plus the
-    /// concrete services that carry custom logic (e.g. StockageService).
+    /// Registers AutoMapper, FluentValidation (per-DTO validators), and business services.
     /// </summary>
     public static IServiceCollection AddBusiness(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(CatalogProfile).Assembly);
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         // simple catalog entities: register the closed generic service (no subclass needed)
         services.AddScoped<

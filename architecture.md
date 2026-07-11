@@ -59,12 +59,14 @@ CoperativeTelouet.sln
 │   │
 │   ├── CoperativeTelouet.Business/           ← services, DTOs, rules (refs Domain + DataAccess)
 │   │   ├── DTOs/                             (read models + Create/Update command DTOs)
-│   │   ├── Mapping/                          (AutoMapper profiles, e.g. StockageProfile.cs)
+│   │   ├── Mapping/                          (AutoMapper profiles)
+│   │   ├── Validation/                       (FluentValidation: one validator per Create/Update DTO)
+│   │   │   ├── Catalog/ · Client/ · Fournisseur/ · Stockage/
 │   │   ├── Services/
 │   │   │   ├── IGenericService.cs
-│   │   │   ├── GenericService.cs             (concrete; uses IMapper)
+│   │   │   ├── GenericService.cs             (concrete; uses IMapper + IValidator)
 │   │   │   └── (StockageService, FacturationService, ... — only entities with custom logic)
-│   │   └── DependencyInjection.cs            (AddBusiness: AddAutoMapper + registrations)
+│   │   └── DependencyInjection.cs            (AddBusiness: AddAutoMapper + AddValidatorsFromAssembly)
 │   │
 │   └── CoperativeTelouet.UI/                 ← Avalonia (MVVM); refs Business only  [DEFERRED]
 │       ├── App.axaml / App.axaml.cs          (composition root: AddDataAccess + AddBusiness)
@@ -138,60 +140,65 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
 ## Generic business service (Business, DTO-aware)
 
-Generic CRUD with **AutoMapper** doing the entity ↔ DTO mapping. The base is **concrete**
-(no abstract members) — it takes an `IMapper` and works for any entity out of the box, so
-**simple tables need no subclass at all**: register the closed generic and add a mapping profile.
-
-`TEntity` is part of the interface so the service can be registered as an **open generic** in DI.
+Generic CRUD with **AutoMapper** (mapping) and **FluentValidation** (shape rules).
+The base is **concrete** — it takes `IMapper` plus optional `IValidator<TCreateDto>` /
+`IValidator<TUpdateDto>` (resolved via `IEnumerable<>` so missing validators are fine).
 
 ```csharp
-// Business/Services/IGenericService.cs
-public interface IGenericService<TEntity, TDto, TCreateDto, TUpdateDto>
-    where TEntity : BaseEntity
-{
-    Task<TDto?> GetByIdAsync(int id);
-    Task<IReadOnlyList<TDto>> GetAllAsync();
-    Task<TDto> CreateAsync(TCreateDto dto);
-    Task UpdateAsync(int id, TUpdateDto dto);
-    Task DeleteAsync(int id);
-}
-```
-
-```csharp
-// Business/Services/GenericService.cs
 public class GenericService<TEntity, TDto, TCreateDto, TUpdateDto>
     : IGenericService<TEntity, TDto, TCreateDto, TUpdateDto>
     where TEntity : BaseEntity
 {
     protected readonly IRepository<TEntity> Repo;
     protected readonly IMapper Mapper;
+    protected readonly IValidator<TCreateDto>? CreateValidator;
+    protected readonly IValidator<TUpdateDto>? UpdateValidator;
 
-    public GenericService(IRepository<TEntity> repo, IMapper mapper)
+    public GenericService(
+        IRepository<TEntity> repo,
+        IMapper mapper,
+        IEnumerable<IValidator<TCreateDto>> createValidators,
+        IEnumerable<IValidator<TUpdateDto>> updateValidators)
     {
         Repo = repo;
         Mapper = mapper;
+        CreateValidator = createValidators.FirstOrDefault();
+        UpdateValidator = updateValidators.FirstOrDefault();
     }
 
-    public async Task<TDto?> GetByIdAsync(int id)
+    public async Task<TDto> CreateAsync(TCreateDto dto, CancellationToken ct = default)
     {
-        var e = await Repo.GetByIdAsync(id);
-        return e is null ? default : Mapper.Map<TDto>(e);
+        await ValidateAsync(CreateValidator, dto, ct);
+        return Mapper.Map<TDto>(await Repo.AddAsync(Mapper.Map<TEntity>(dto), ct));
     }
 
-    public async Task<IReadOnlyList<TDto>> GetAllAsync()
-        => Mapper.Map<IReadOnlyList<TDto>>(await Repo.GetAllAsync());
+    // UpdateAsync validates UpdateValidator the same way...
+}
+```
 
-    public async Task<TDto> CreateAsync(TCreateDto dto)
-        => Mapper.Map<TDto>(await Repo.AddAsync(Mapper.Map<TEntity>(dto)));
+Each DTO type gets its **own** validator class; DI injects the matching one into the
+closed generic service. Categorie rules never run for Charge — the type parameter decides.
 
-    public async Task UpdateAsync(int id, TUpdateDto dto)
+## DTO validation (FluentValidation)
+
+- **One validator per Create/Update DTO** under `Business/Validation/` (Catalog / Client / Fournisseur / Stockage).
+- Inherit `AbstractValidator<TDto>` and declare rules with `RuleFor(...).NotEmpty()...` (fluent chaining).
+- Messages in French.
+- Registered once: `services.AddValidatorsFromAssembly(...)`.
+- Invoked centrally in `GenericService.CreateAsync` / `UpdateAsync` (and custom methods like `EnregistrerDepotAsync`).
+- **Shape only** (required, length, format, EtatBac conditional fields). Uniqueness / stock / billing rules stay in concrete services (need DB).
+
+Example:
+
+```csharp
+public class CreateTiersDtoValidator : AbstractValidator<CreateTiersDto>
+{
+    public CreateTiersDtoValidator()
     {
-        var e = await Repo.GetByIdAsync(id) ?? throw new KeyNotFoundException();
-        Mapper.Map(dto, e);           // apply changes onto the tracked entity
-        await Repo.UpdateAsync(e);
+        RuleFor(x => x.Nom).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Type).IsInEnum();
+        RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
     }
-
-    public Task DeleteAsync(int id) => Repo.DeleteAsync(id);
 }
 ```
 
@@ -247,15 +254,17 @@ the (now concrete) generic service and add domain methods. Mapping still comes f
 public class StockageService
     : GenericService<BonEntreeStockage, BonEntreeStockageDto, CreateBonEntreeStockageDto, UpdateBonEntreeStockageDto>
 {
-    public StockageService(IRepository<BonEntreeStockage> repo, IMapper mapper)
-        : base(repo, mapper) { }
+    public StockageService(
+        IRepository<BonEntreeStockage> repo,
+        IMapper mapper,
+        IEnumerable<IValidator<CreateBonEntreeStockageDto>> createValidators,
+        IEnumerable<IValidator<UpdateBonEntreeStockageDto>> updateValidators)
+        : base(repo, mapper, createValidators, updateValidators) { }
 
-    // custom, non-generic operation
     public async Task<BonEntreeStockageDto> EnregistrerDepotAsync(CreateBonEntreeStockageDto dto)
     {
-        var entity = Mapper.Map<BonEntreeStockage>(dto);
-        // compute snapshots, snapshot PrixParBacParJourApplique,
-        // generate NumeroLot, update StockBacsSociete in the SAME transaction...
+        await ValidateAsync(CreateValidator, dto, default);
+        // compute snapshots, NumeroLot, StockBacsSociete in the SAME transaction...
         throw new NotImplementedException();
     }
 }
@@ -274,28 +283,28 @@ public class StockageService
 // DataAccess: generic repository covers all entities
 services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Business: AutoMapper scans profiles in the Business assembly
-services.AddAutoMapper(typeof(StockageProfile).Assembly);
-// (optional but recommended) fail fast on bad mappings at startup:
-// cfg.AssertConfigurationIsValid();  via AddAutoMapper config or a startup check
+// Business: AutoMapper + FluentValidation (scan Business assembly)
+services.AddAutoMapper(typeof(CatalogProfile).Assembly);
+services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
 // simple entities: register the closed generic service (no subclass)
 services.AddScoped<
     IGenericService<VarietePomme, VarietePommeDto, CreateVarietePommeDto, UpdateVarietePommeDto>,
     GenericService<VarietePomme, VarietePommeDto, CreateVarietePommeDto, UpdateVarietePommeDto>>();
 
-// entities with custom logic: register the concrete service
+// entities with custom logic
 services.AddScoped<StockageService>();
 ```
 
-> Package: add **`AutoMapper`** (and, on older setups, `AutoMapper.Extensions.Microsoft.DependencyInjection`) to the Business project.
+> Packages: **AutoMapper**, **FluentValidation**, **FluentValidation.DependencyInjectionExtensions**.
 
 ## Conventions summary
 
 | Concern | Generic building block | Custom when… |
 |---------|------------------------|--------------|
 | Data access | `IRepository<T>` / `Repository<T>` | custom queries / eager loading needed |
-| Business CRUD | `IGenericService<TEntity,TDto,TCreateDto,TUpdateDto>` / `GenericService<…>` (concrete, uses `IMapper`) | domain logic (billing, snapshots, transactions) → subclass |
+| Business CRUD | `IGenericService<…>` / `GenericService<…>` (concrete; `IMapper` + `IValidator`) | domain logic (billing, snapshots, transactions) → subclass |
 | Mapping | AutoMapper profiles in `Business/Mapping` | odd fields → `ForMember` / `Ignore` |
+| Input validation | FluentValidation: one `AbstractValidator<TDto>` per Create/Update DTO | business rules needing DB → concrete service |
 | UI contract | DTOs (read + Create/Update) | — always DTOs, never entities |
 | DB provider | `DataAccess/DependencyInjection.cs` | one-line `UseSqlite` → `UseNpgsql` swap |
