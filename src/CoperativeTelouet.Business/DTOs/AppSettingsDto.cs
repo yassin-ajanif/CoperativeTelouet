@@ -1,0 +1,40 @@
+namespace CoperativeTelouet.Business.DTOs;
+
+public record AppSettingsDto(
+    int Id,
+    string? SocieteNom,
+    string? SocieteAdresse,
+    string? SocieteICE,
+    string? SocieteMentionsLegales,
+    string? SocieteLogoPath,
+    string? TauxTVAJson,
+    bool BlocageSiStockInsuffisant,
+    int DevisValiditeJoursDefaut,
+    string? Devise,
+    string? UiLanguage,
+    bool BackupEnabled,
+    int BackupIntervalHours,
+    string? BackupIntervalUnit,
+    int BackupRetentionDays,
+    string? BackupDirectory,
+    DateTime? LastBackupDate,
+    decimal PrixStockageParBacParJour);
+
+public record UpdateAppSettingsDto(
+    string? SocieteNom,
+    string? SocieteAdresse,
+    string? SocieteICE,
+    string? SocieteMentionsLegales,
+    string? SocieteLogoPath,
+    string? TauxTVAJson,
+    bool BlocageSiStockInsuffisant,
+    int DevisValiditeJoursDefaut,
+    string? Devise,
+    string? UiLanguage,
+    bool BackupEnabled,
+    int BackupIntervalHours,
+    string? BackupIntervalUnit,
+    int BackupRetentionDays,
+    string? BackupDirectory,
+    DateTime? LastBackupDate,
+    decimal PrixStockageParBacParJour);
