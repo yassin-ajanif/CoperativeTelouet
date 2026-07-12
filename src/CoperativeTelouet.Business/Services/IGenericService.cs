@@ -10,9 +10,10 @@ public interface IGenericService<TEntity, TDto, TCreateDto, TUpdateDto>
     Task<TDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TDto>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
-    Task<PagedResult<TDto>> QueryPagedAsync(
+    Task<PagedResult<TResult>> QueryPagedAsync<TResult>(
         Expression<Func<TEntity, bool>>? predicate,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
+        Expression<Func<TEntity, TResult>> selector,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);

@@ -34,24 +34,36 @@ public class FournisseurService
         _avoirLignes = avoirLignes;
     }
 
-    public async Task<IReadOnlyList<TiersDto>> GetFournisseursAsync(string? search = null, CancellationToken cancellationToken = default)
+    public Task<PagedResult<TiersDto>> GetFournisseursAsync(
+        string? search = null,
+        int page = 1,
+        int pageSize = 15,
+        CancellationToken cancellationToken = default)
     {
-        var fournisseurs = await FindAsync(
-            t => t.Type == TypeTiers.Fournisseur || t.Type == TypeTiers.LesDeux,
+        var q = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
+
+        return QueryPagedAsync(
+            t => (t.Type == TypeTiers.Fournisseur || t.Type == TypeTiers.LesDeux)
+                 && (q == null
+                     || t.Nom.Contains(q)
+                     || (t.ICE != null && t.ICE.Contains(q))
+                     || (t.Ville != null && t.Ville.Contains(q))
+                     || (t.Telephone != null && t.Telephone.Contains(q))),
+            query => query.OrderBy(t => t.Nom),
+            t => new TiersDto(
+                t.Id,
+                t.Type,
+                t.Nom,
+                t.ICE,
+                t.Adresse,
+                t.Ville,
+                t.Telephone,
+                t.Email,
+                t.ConditionsPaiement,
+                t.Actif),
+            page,
+            pageSize,
             cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var q = search.Trim();
-            fournisseurs = fournisseurs.Where(t =>
-                t.Nom.Contains(q, StringComparison.OrdinalIgnoreCase)
-                || (t.ICE?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.Ville?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.Telephone?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false))
-                .ToList();
-        }
-
-        return fournisseurs.OrderBy(t => t.Nom).ToList();
     }
 
     public async Task<TiersDto> ToggleActifAsync(int id, CancellationToken cancellationToken = default)

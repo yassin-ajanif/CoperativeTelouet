@@ -22,9 +22,10 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         CancellationToken cancellationToken = default)
         => await Set.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
 
-    public async Task<(IReadOnlyList<T> Items, int TotalCount)> QueryPagedAsync(
+    public async Task<(IReadOnlyList<TResult> Items, int TotalCount)> QueryPagedAsync<TResult>(
         Expression<Func<T, bool>>? predicate,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+        Expression<Func<T, TResult>> selector,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -42,6 +43,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         var items = await orderBy(query)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Select(selector)
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);

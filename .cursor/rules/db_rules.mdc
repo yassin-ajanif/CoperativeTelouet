@@ -17,25 +17,28 @@ All database / DataAccess conventions live in this file. When adding a new DB-re
 
 ## Repository interfaces (required pattern)
 
-Specialized repository **interfaces** must **extend** `IRepository<T>` and only declare entity-specific queries on top. Implementations inherit `Repository<T>` and implement the specialized interface.
+Specialized repository **interfaces** must **extend** `IRepository<T>` and only declare entity-specific queries that the generic API cannot express (non-navigation joins, `GroupBy` reports, unions, raw SQL). Prefer `QueryPagedAsync` + `selector` for normal list screens.
 
 ```csharp
-// ✅ GOOD
-public interface IDevisClientRepository : IRepository<DevisClient>
-{
-    Task<(IReadOnlyList<DevisClientListRow> Items, int TotalCount)> QueryListPagedAsync(...);
-}
+// ✅ GOOD — list with navigation projection via generic paging
+await Repo.QueryPagedAsync(
+    predicate,
+    q => q.OrderByDescending(d => d.Date),
+    d => new DevisClientListItemDto(..., d.Client.Nom, ...),
+    page, pageSize);
 
-public class DevisClientRepository(AppDbContext db) : Repository<DevisClient>(db), IDevisClientRepository { ... }
+// ✅ GOOD — specialized only when generic cannot express the query
+public interface ICompteQuery { Task<...> GetCompteAsync(...); }
 
-// ❌ BAD — standalone repo interface that redeclares GetById/Add/Update without IRepository<T>
+// ❌ BAD — standalone repo that redeclares GetById/Add/Update without IRepository<T>
 public interface IDevisClientRepository { Task<DevisClient?> GetByIdAsync(int id); }
 ```
 
 ## Repository queries
 
 - Use `FindAsync(Expression<Func<T, bool>>)` so filters run in SQL (`WHERE`), not `GetAllAsync()` then `.Where` in memory.
-- Use `QueryPagedAsync(predicate, orderBy, page, pageSize)` for list screens — `Count` + `Skip`/`Take` in SQL; Business returns `PagedResult<TDto>` via `GenericService.QueryPagedAsync`.
+- Use `QueryPagedAsync(predicate, orderBy, selector, page, pageSize)` for list screens — `Count` + `Order` + `Skip`/`Take` + `Select` in SQL (navigations in `selector` become joins). Business returns `PagedResult<T>` via `GenericService.QueryPagedAsync`.
+- Do **not** add a specialized paged list method when a navigation projection is enough.
 - `GetByIdAsync` is primary-key lookup only — not “by foreign key / client id”.
 - Funnel all DB access through repositories; do not open ad-hoc connections from Business/UI.
 

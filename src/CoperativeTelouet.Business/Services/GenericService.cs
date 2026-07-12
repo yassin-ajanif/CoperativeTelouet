@@ -42,15 +42,17 @@ public class GenericService<TEntity, TDto, TCreateDto, TUpdateDto>
         CancellationToken cancellationToken = default)
         => Mapper.Map<IReadOnlyList<TDto>>(await Repo.FindAsync(predicate, cancellationToken));
 
-    public async Task<PagedResult<TDto>> QueryPagedAsync(
+    public async Task<PagedResult<TResult>> QueryPagedAsync<TResult>(
         Expression<Func<TEntity, bool>>? predicate,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
+        Expression<Func<TEntity, TResult>> selector,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var (items, totalCount) = await Repo.QueryPagedAsync(predicate, orderBy, page, pageSize, cancellationToken);
-        return new PagedResult<TDto>(Mapper.Map<IReadOnlyList<TDto>>(items), totalCount);
+        var (items, totalCount) = await Repo.QueryPagedAsync(
+            predicate, orderBy, selector, page, pageSize, cancellationToken);
+        return new PagedResult<TResult>(items, totalCount);
     }
 
     public async Task<TDto> CreateAsync(TCreateDto dto, CancellationToken cancellationToken = default)

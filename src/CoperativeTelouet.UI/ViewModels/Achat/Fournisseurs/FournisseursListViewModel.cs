@@ -13,7 +13,6 @@ public partial class FournisseursListViewModel : ViewModelBase
     private readonly IFournisseurService _fournisseurs;
     private readonly IUserDialogService _dialogs;
     private FournisseursViewModel? _host;
-    private IReadOnlyList<TiersDto> _all = [];
 
     [ObservableProperty]
     private ObservableCollection<TiersDto> _pageItems = [];
@@ -72,13 +71,29 @@ public partial class FournisseursListViewModel : ViewModelBase
         {
             IsBusy = true;
             ErrorMessage = null;
-            _all = await _fournisseurs.GetFournisseursAsync(string.IsNullOrWhiteSpace(SearchText) ? null : SearchText);
-            TotalCount = _all.Count;
+
+            var result = await _fournisseurs.GetFournisseursAsync(
+                string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
+                PageIndex,
+                PageSize);
+
+            TotalCount = result.TotalCount;
             TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
             if (PageIndex > TotalPages)
+            {
                 PageIndex = TotalPages;
-            ApplyPage();
+                result = await _fournisseurs.GetFournisseursAsync(
+                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
+                    PageIndex,
+                    PageSize);
+                TotalCount = result.TotalCount;
+            }
+
+            PageItems = new ObservableCollection<TiersDto>(result.Items);
             OnPropertyChanged(nameof(CountLabel));
+            OnPropertyChanged(nameof(PageLabel));
+            OnPropertyChanged(nameof(CanGoPrevious));
+            OnPropertyChanged(nameof(CanGoNext));
         }
         catch (Exception ex)
         {
@@ -140,27 +155,18 @@ public partial class FournisseursListViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void PreviousPage()
+    private async Task PreviousPageAsync()
     {
         if (!CanGoPrevious) return;
         PageIndex--;
-        ApplyPage();
+        await LoadAsync();
     }
 
     [RelayCommand]
-    private void NextPage()
+    private async Task NextPageAsync()
     {
         if (!CanGoNext) return;
         PageIndex++;
-        ApplyPage();
-    }
-
-    private void ApplyPage()
-    {
-        var slice = _all.Skip((PageIndex - 1) * PageSize).Take(PageSize);
-        PageItems = new ObservableCollection<TiersDto>(slice);
-        OnPropertyChanged(nameof(PageLabel));
-        OnPropertyChanged(nameof(CanGoPrevious));
-        OnPropertyChanged(nameof(CanGoNext));
+        await LoadAsync();
     }
 }
