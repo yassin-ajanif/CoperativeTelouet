@@ -54,19 +54,29 @@ await _categorieService.CreateAsync(new CreateCategorieDto(Nom));
 ## GenericService (required pattern)
 
 Specialized services must **inherit** `GenericService<TEntity, TDto, TCreateDto, TUpdateDto>` and reuse its CRUD.
+Specialized service **interfaces** must **extend** `IGenericService<…>` and declare **only** domain-specific methods — never redeclare CRUD (`GetByIdAsync`, `CreateAsync`, `UpdateAsync`, …).
 
-- **Do** add **custom methods** (`CreateClientAsync`, `GetClientsAsync`, …) that call inherited `CreateAsync` / `UpdateAsync` / `GetByIdAsync` / `GetAllAsync` / `FindAsync`.
-- **Do** keep domain interfaces standalone (e.g. `IClientService`) — do **not** extend `IGenericService` on specialized APIs.
+- **Do** declare `IClientService : IGenericService<Tiers, TiersDto, CreateTiersDto, UpdateTiersDto>` (same for fournisseur, …).
+- **Do** call inherited CRUD from UI / other services: `CreateAsync`, `UpdateAsync`, `GetByIdAsync`, `FindAsync`.
+- **Do** add custom methods only when they add domain behavior (`GetClientsAsync`, `ToggleActifAsync`, `GetCompteAsync`).
+- **Don't** wrap CRUD in aliases (`CreateClientAsync`, `GetClientByIdAsync`, …) — that duplicates `IGenericService`.
 - **Don't** mark any `GenericService` member `virtual` / `abstract` / `override` — never override the base.
 - **Don't** reimplement CRUD, validators, or mapping beside GenericService.
-- Simple catalog entities: closed `GenericService<…>` DI registration is enough (no subclass).
+- Simple catalog entities: closed `GenericService<…>` DI registration is enough (no subclass / no specialized interface).
 
 ```csharp
-// ✅ GOOD
-public async Task<TiersDto> CreateClientAsync(CreateTiersDto dto, CancellationToken ct = default)
+// ✅ GOOD — only domain methods; CRUD comes from IGenericService
+public interface IClientService : IGenericService<Tiers, TiersDto, CreateTiersDto, UpdateTiersDto>
 {
-    EnsureClientType(dto.Type);
-    return await CreateAsync(dto, ct);
+    Task<IReadOnlyList<TiersDto>> GetClientsAsync(string? search = null, CancellationToken ct = default);
+    Task<TiersDto> ToggleActifAsync(int id, CancellationToken ct = default);
+}
+
+// ❌ BAD — CRUD aliases that duplicate IGenericService
+public interface IClientService : IGenericService<...>
+{
+    Task<TiersDto> CreateClientAsync(CreateTiersDto dto, ...);
+    Task<TiersDto?> GetClientByIdAsync(int id, ...);
 }
 
 // ❌ BAD
@@ -81,7 +91,7 @@ public override async Task<TiersDto> CreateAsync(...) { ... }
 
 ```csharp
 var update = Mapper.Map<UpdateTiersDto>(dto) with { Actif = !dto.Actif };
-await UpdateClientAsync(id, update, ct);
+await UpdateAsync(id, update, ct);
 ```
 
 ## Filtered reads from Business

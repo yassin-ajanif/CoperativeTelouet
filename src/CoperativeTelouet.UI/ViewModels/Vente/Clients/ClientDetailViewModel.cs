@@ -104,7 +104,7 @@ public partial class ClientDetailViewModel : ViewModelBase
         try
         {
             IsBusy = true;
-            var dto = await _clients.GetClientByIdAsync(clientId.Value)
+            var dto = await _clients.GetByIdAsync(clientId.Value)
                 ?? throw new KeyNotFoundException("Client introuvable.");
 
             SelectedType = dto.Type == Domain.Enums.TypeTiers.LesDeux
@@ -151,7 +151,7 @@ public partial class ClientDetailViewModel : ViewModelBase
 
             if (_editingId is null)
             {
-                await _clients.CreateClientAsync(new CreateTiersDto(
+                await _clients.CreateAsync(new CreateTiersDto(
                     type,
                     Nom.Trim(),
                     NullIfEmpty(Ice),
@@ -164,7 +164,7 @@ public partial class ClientDetailViewModel : ViewModelBase
             }
             else
             {
-                await _clients.UpdateClientAsync(_editingId.Value, new UpdateTiersDto(
+                await _clients.UpdateAsync(_editingId.Value, new UpdateTiersDto(
                     type,
                     Nom.Trim(),
                     NullIfEmpty(Ice),

@@ -15,6 +15,23 @@ All database / DataAccess conventions live in this file. When adding a new DB-re
 - Domain entities stay persistence-agnostic; map with Fluent API, not EF attributes on entities when avoidable.
 - **UI never references or calls DataAccess** — only Business may call repositories / `DatabaseInitializer` / `AddDataAccess`.
 
+## Repository interfaces (required pattern)
+
+Specialized repository **interfaces** must **extend** `IRepository<T>` and only declare entity-specific queries on top. Implementations inherit `Repository<T>` and implement the specialized interface.
+
+```csharp
+// ✅ GOOD
+public interface IDevisClientRepository : IRepository<DevisClient>
+{
+    Task<(IReadOnlyList<DevisClientListRow> Items, int TotalCount)> QueryListPagedAsync(...);
+}
+
+public class DevisClientRepository(AppDbContext db) : Repository<DevisClient>(db), IDevisClientRepository { ... }
+
+// ❌ BAD — standalone repo interface that redeclares GetById/Add/Update without IRepository<T>
+public interface IDevisClientRepository { Task<DevisClient?> GetByIdAsync(int id); }
+```
+
 ## Repository queries
 
 - Use `FindAsync(Expression<Func<T, bool>>)` so filters run in SQL (`WHERE`), not `GetAllAsync()` then `.Where` in memory.

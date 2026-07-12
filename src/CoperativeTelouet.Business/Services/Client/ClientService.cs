@@ -54,41 +54,20 @@ public class ClientService
         return clients.OrderBy(t => t.Nom).ToList();
     }
 
-    public async Task<TiersDto?> GetClientByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var dto = await GetByIdAsync(id, cancellationToken);
-        if (dto is null || !IsClientSide(dto))
-            return null;
-
-        return dto;
-    }
-
-    public async Task<TiersDto> CreateClientAsync(CreateTiersDto dto, CancellationToken cancellationToken = default)
-    {
-        EnsureClientType(dto.Type);
-        return await CreateAsync(dto, cancellationToken);
-    }
-
-    public async Task UpdateClientAsync(int id, UpdateTiersDto dto, CancellationToken cancellationToken = default)
-    {
-        EnsureClientType(dto.Type);
-        _ = await GetClientByIdAsync(id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Client {id} introuvable.");
-
-        await UpdateAsync(id, dto, cancellationToken);
-    }
-
     public async Task<TiersDto> ToggleActifAsync(int id, CancellationToken cancellationToken = default)
     {
-        var dto = await GetClientByIdAsync(id, cancellationToken)
+        var dto = await GetByIdAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Client {id} introuvable.");
+        if (!IsClientSide(dto))
+            throw new KeyNotFoundException($"Client {id} introuvable.");
 
-        await UpdateClientAsync(
+        EnsureClientType(dto.Type);
+        await UpdateAsync(
             id,
             Mapper.Map<UpdateTiersDto>(dto) with { Actif = !dto.Actif },
             cancellationToken);
 
-        return (await GetClientByIdAsync(id, cancellationToken))!;
+        return (await GetByIdAsync(id, cancellationToken))!;
     }
 
     public async Task<ClientCompteDto> GetCompteAsync(int clientId, CancellationToken cancellationToken = default)
