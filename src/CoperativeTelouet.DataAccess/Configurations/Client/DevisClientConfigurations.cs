@@ -13,6 +13,7 @@ public class DevisClientConfiguration : IEntityTypeConfiguration<DevisClient>
         builder.HasIndex(d => d.Numero).IsUnique();
 
         builder.Property(d => d.RemiseGlobale).HasPrecision(18, 2);
+        builder.Property(d => d.TotalTtc).HasPrecision(18, 2);
 
         builder.HasOne(d => d.Client)
             .WithMany(t => t.DevisClients)
