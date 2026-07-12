@@ -41,7 +41,7 @@
           <DataGridTextColumn Header="ICE" Binding="{Binding ICE}" Width="140" />
           <DataGridTextColumn Header="Ville" Binding="{Binding Ville}" Width="140" />
           <DataGridTextColumn Header="Actif"
-                             Binding="{Binding Actif, Converter={x:Static conv:ActifToTextConverter.Instance}}"
+                             Binding="{Binding Actif, Mode=OneWay, Converter={x:Static conv:ActifToTextConverter.Instance}}"
                              Width="100" />
         </DataGrid.Columns>
       </DataGrid>

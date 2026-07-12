@@ -30,11 +30,11 @@
       <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="12">
         <StackPanel Grid.Column="0" Spacing="4">
           <TextBlock Text="Date" Opacity="0.7" FontSize="12" />
-          <CalendarDatePicker SelectedDate="{Binding DateDevis}" Width="160" HorizontalAlignment="Left" />
+          <CalendarDatePicker SelectedDate="{Binding DateDevis, Mode=TwoWay}" Width="160" HorizontalAlignment="Left" />
         </StackPanel>
         <StackPanel Grid.Column="1" Spacing="4">
           <TextBlock Text="Validité" Opacity="0.7" FontSize="12" />
-          <CalendarDatePicker SelectedDate="{Binding DateValidite}" Width="160" HorizontalAlignment="Left" />
+          <CalendarDatePicker SelectedDate="{Binding DateValidite, Mode=TwoWay}" Width="160" HorizontalAlignment="Left" />
         </StackPanel>
         <StackPanel Grid.Column="2" Spacing="4">
           <TextBlock Text="Client" Opacity="0.7" FontSize="12" />

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 
 namespace CoperativeTelouet.UI.Converters;
@@ -18,5 +19,5 @@ public sealed class TypeTiersOptionConverter : IValueConverter
         };
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        throw new NotSupportedException();
+        BindingOperations.DoNothing;
 }

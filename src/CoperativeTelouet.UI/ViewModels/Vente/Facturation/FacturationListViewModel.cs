@@ -23,10 +23,10 @@ public partial class FacturationListViewModel : ViewModelBase
     private string _searchText = string.Empty;
 
     [ObservableProperty]
-    private DateTime? _dateFrom;
+    private string _dateFromText = string.Empty;
 
     [ObservableProperty]
-    private DateTime? _dateTo;
+    private string _dateToText = string.Empty;
 
     [ObservableProperty]
     private bool _showDateFilter;
@@ -82,8 +82,8 @@ public partial class FacturationListViewModel : ViewModelBase
 
             var result = await _factures.GetFacturesAsync(
                 string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
-                DateFrom?.Date,
-                DateTo?.Date,
+                TryParseDate(DateFromText),
+                TryParseDate(DateToText),
                 PageIndex,
                 PageSize);
 
@@ -94,8 +94,8 @@ public partial class FacturationListViewModel : ViewModelBase
                 PageIndex = TotalPages;
                 result = await _factures.GetFacturesAsync(
                     string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
-                    DateFrom?.Date,
-                    DateTo?.Date,
+                    TryParseDate(DateFromText),
+                    TryParseDate(DateToText),
                     PageIndex,
                     PageSize);
                 TotalCount = result.TotalCount;
@@ -138,8 +138,8 @@ public partial class FacturationListViewModel : ViewModelBase
     [RelayCommand]
     private async Task ClearDateFilterAsync()
     {
-        DateFrom = null;
-        DateTo = null;
+        DateFromText = string.Empty;
+        DateToText = string.Empty;
         PageIndex = 1;
         await LoadAsync();
     }
@@ -168,5 +168,13 @@ public partial class FacturationListViewModel : ViewModelBase
         if (!CanGoNext) return;
         PageIndex++;
         await LoadAsync();
+    }
+
+    private static DateTime? TryParseDate(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return null;
+
+        return DateTime.TryParse(text, out var date) ? date.Date : null;
     }
 }
