@@ -75,6 +75,7 @@ public partial class App : Application
         services.AddBusiness(connectionString);
 
         services.AddSingleton<IUserDialogService, UserDialogService>();
+        services.AddSingleton<IDocumentColumnVisibilityService, DocumentColumnVisibilityService>();
         services.AddTransient<MainViewModel>();
         services.AddTransient<AccueilViewModel>();
         services.AddTransient<CategoriesViewModel>();

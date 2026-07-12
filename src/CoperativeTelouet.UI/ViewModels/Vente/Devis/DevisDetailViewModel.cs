@@ -17,6 +17,7 @@ public partial class DevisDetailViewModel : ViewModelBase
     private readonly IDevisClientService _devis;
     private readonly IClientService _clientService;
     private readonly IUserDialogService _dialogs;
+    private readonly IDocumentColumnVisibilityService _columnVisibility;
     private DevisViewModel? _host;
     private int? _editingId;
 
@@ -27,10 +28,10 @@ public partial class DevisDetailViewModel : ViewModelBase
     private string _statutLabel = "(brouillon)";
 
     [ObservableProperty]
-    private DateTimeOffset _dateDevis = DateTimeOffset.Now;
+    private DateTime _dateDevis = DateTime.Today;
 
     [ObservableProperty]
-    private DateTimeOffset _dateValidite = DateTimeOffset.Now.AddMonths(1);
+    private DateTime _dateValidite = DateTime.Today.AddMonths(1);
 
     [ObservableProperty]
     private ObservableCollection<TiersDto> _clientOptions = [];
@@ -125,11 +126,13 @@ public partial class DevisDetailViewModel : ViewModelBase
     public DevisDetailViewModel(
         IDevisClientService devis,
         IClientService clientService,
-        IUserDialogService dialogs)
+        IUserDialogService dialogs,
+        IDocumentColumnVisibilityService columnVisibility)
     {
         _devis = devis;
         _clientService = clientService;
         _dialogs = dialogs;
+        _columnVisibility = columnVisibility;
         Lignes.CollectionChanged += OnLignesCollectionChanged;
     }
 
@@ -149,6 +152,8 @@ public partial class DevisDetailViewModel : ViewModelBase
             IsBusy = true;
             ErrorMessage = null;
 
+            await ApplyColumnVisibilityAsync();
+
             var clients = await _clientService.GetClientsAsync(page: 1, pageSize: 500);
             ClientOptions = new ObservableCollection<TiersDto>(
                 clients.Items.Where(c => c.Type is TypeTiers.Client or TypeTiers.LesDeux).OrderBy(c => c.Nom));
@@ -157,8 +162,8 @@ public partial class DevisDetailViewModel : ViewModelBase
             {
                 Numero = await _devis.GenerateNumeroAsync();
                 StatutLabel = "(brouillon)";
-                DateDevis = DateTimeOffset.Now;
-                DateValidite = DateTimeOffset.Now.AddMonths(1);
+                DateDevis = DateTime.Today;
+                DateValidite = DateTime.Today.AddMonths(1);
                 SelectedClient = ClientOptions.FirstOrDefault();
                 RemiseGlobale = 0;
                 Note = null;
@@ -171,8 +176,8 @@ public partial class DevisDetailViewModel : ViewModelBase
 
                 Numero = dto.Numero;
                 StatutLabel = string.Empty;
-                DateDevis = new DateTimeOffset(dto.Date);
-                DateValidite = new DateTimeOffset(dto.DateValidite);
+                DateDevis = dto.Date.Date;
+                DateValidite = dto.DateValidite.Date;
                 SelectedClient = ClientOptions.FirstOrDefault(c => c.Id == dto.ClientId)
                     ?? ClientOptions.FirstOrDefault();
                 RemiseGlobale = dto.RemiseGlobale;
@@ -272,6 +277,8 @@ public partial class DevisDetailViewModel : ViewModelBase
                     lineDtos));
             }
 
+            await SyncColumnVisibilityAsync();
+
             await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
             _host?.ShowList();
         }
@@ -327,4 +334,34 @@ public partial class DevisDetailViewModel : ViewModelBase
         OnPropertyChanged(nameof(TotalTva));
         OnPropertyChanged(nameof(TotalTtc));
     }
+
+    private async Task ApplyColumnVisibilityAsync()
+    {
+        var prefs = await _columnVisibility.GetAsync(DocumentColumnKeys.DevisClient);
+        ShowColRef = prefs.ShowColRef;
+        ShowColDesignation = prefs.ShowColDesignation;
+        ShowColQte = prefs.ShowColQte;
+        ShowColPrix = prefs.ShowColPrix;
+        ShowColRemise = prefs.ShowColRemise;
+        ShowColTva = prefs.ShowColTva;
+        ShowColConditionnement = prefs.ShowColConditionnement;
+        ShowColHt = prefs.ShowColHt;
+        ShowColTtc = prefs.ShowColTtc;
+    }
+
+    private Task SyncColumnVisibilityAsync() =>
+        _columnVisibility.SaveAsync(
+            DocumentColumnKeys.DevisClient,
+            new DocumentColumnVisibility
+            {
+                ShowColRef = ShowColRef,
+                ShowColDesignation = ShowColDesignation,
+                ShowColQte = ShowColQte,
+                ShowColPrix = ShowColPrix,
+                ShowColRemise = ShowColRemise,
+                ShowColTva = ShowColTva,
+                ShowColConditionnement = ShowColConditionnement,
+                ShowColHt = ShowColHt,
+                ShowColTtc = ShowColTtc,
+            });
 }
