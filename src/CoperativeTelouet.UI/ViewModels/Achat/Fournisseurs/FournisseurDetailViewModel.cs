@@ -104,7 +104,7 @@ public partial class FournisseurDetailViewModel : ViewModelBase
         try
         {
             IsBusy = true;
-            var dto = await _fournisseurs.GetByIdAsync(fournisseurId.Value)
+            var dto = await _fournisseurs.GetFournisseurByIdAsync(fournisseurId.Value)
                 ?? throw new KeyNotFoundException("Fournisseur introuvable.");
 
             SelectedType = dto.Type == Domain.Enums.TypeTiers.LesDeux
@@ -151,7 +151,7 @@ public partial class FournisseurDetailViewModel : ViewModelBase
 
             if (_editingId is null)
             {
-                await _fournisseurs.CreateAsync(new CreateTiersDto(
+                await _fournisseurs.CreateFournisseurAsync(new CreateTiersDto(
                     type,
                     Nom.Trim(),
                     NullIfEmpty(Ice),
@@ -164,7 +164,7 @@ public partial class FournisseurDetailViewModel : ViewModelBase
             }
             else
             {
-                await _fournisseurs.UpdateAsync(_editingId.Value, new UpdateTiersDto(
+                await _fournisseurs.UpdateFournisseurAsync(_editingId.Value, new UpdateTiersDto(
                     type,
                     Nom.Trim(),
                     NullIfEmpty(Ice),

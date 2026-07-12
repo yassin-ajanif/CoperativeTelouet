@@ -66,14 +66,45 @@ public class FournisseurService
             cancellationToken);
     }
 
+    public async Task<TiersDto?> GetFournisseurByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var dto = await GetByIdAsync(id, cancellationToken);
+        if (dto is null || !IsFournisseurSide(dto))
+            return null;
+        return dto;
+    }
+
+    public async Task<TiersDto> CreateFournisseurAsync(
+        CreateTiersDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureFournisseurType(dto.Type);
+        return await CreateAsync(dto, cancellationToken);
+    }
+
+    public async Task UpdateFournisseurAsync(
+        int id,
+        UpdateTiersDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureFournisseurType(dto.Type);
+        _ = await GetFournisseurByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Fournisseur {id} introuvable.");
+        await UpdateAsync(id, dto, cancellationToken);
+    }
+
+    public async Task DeleteFournisseurAsync(int id, CancellationToken cancellationToken = default)
+    {
+        _ = await GetFournisseurByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Fournisseur {id} introuvable.");
+        await DeleteAsync(id, cancellationToken);
+    }
+
     public async Task<TiersDto> ToggleActifAsync(int id, CancellationToken cancellationToken = default)
     {
-        var dto = await GetByIdAsync(id, cancellationToken)
+        var dto = await GetFournisseurByIdAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Fournisseur {id} introuvable.");
-        if (!IsFournisseurSide(dto))
-            throw new KeyNotFoundException($"Fournisseur {id} introuvable.");
 
-        EnsureFournisseurType(dto.Type);
         await UpdateAsync(
             id,
             Mapper.Map<UpdateTiersDto>(dto) with { Actif = !dto.Actif },

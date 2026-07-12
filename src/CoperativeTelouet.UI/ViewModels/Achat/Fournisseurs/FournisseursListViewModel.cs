@@ -155,6 +155,31 @@ public partial class FournisseursListViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task DeleteAsync()
+    {
+        if (SelectedItem is null)
+            return;
+
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = null;
+            await _fournisseurs.DeleteFournisseurAsync(SelectedItem.Id);
+            await LoadAsync();
+            await _dialogs.ShowSuccessAsync("Suppression réussie.");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
     private async Task PreviousPageAsync()
     {
         if (!CanGoPrevious) return;

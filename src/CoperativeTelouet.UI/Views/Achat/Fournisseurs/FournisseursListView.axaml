@@ -17,6 +17,9 @@
           <Button Content="Activer/Désactiver"
                   Command="{Binding ToggleActifCommand}"
                   Padding="16,8" />
+          <Button Content="Supprimer"
+                  Command="{Binding DeleteCommand}"
+                  Padding="16,8" />
         </StackPanel>
         <TextBox Watermark="Recherche"
                  Text="{Binding SearchText}"
