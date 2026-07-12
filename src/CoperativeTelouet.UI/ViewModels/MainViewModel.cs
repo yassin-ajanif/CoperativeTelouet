@@ -41,6 +41,7 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsFacturationAchatSelected))]
     [NotifyPropertyChangedFor(nameof(IsAvoirFournisseurSelected))]
     [NotifyPropertyChangedFor(nameof(IsCategoriesSelected))]
+    [NotifyPropertyChangedFor(nameof(IsProduitsSelected))]
     private string _selectedNav = "Accueil";
 
     [ObservableProperty]
@@ -69,6 +70,7 @@ public partial class MainViewModel : ViewModelBase
     public bool IsFacturationAchatSelected => SelectedNav == "FacturationAchat";
     public bool IsAvoirFournisseurSelected => SelectedNav == "AvoirFournisseur";
     public bool IsCategoriesSelected => SelectedNav == "Categories";
+    public bool IsProduitsSelected => SelectedNav == "Produits";
 
     public string VenteChevron => IsVenteExpanded ? "▼" : "▶";
     public string AchatChevron => IsAchatExpanded ? "▼" : "▶";
@@ -211,6 +213,15 @@ public partial class MainViewModel : ViewModelBase
         CurrentPage = _services.GetRequiredService<CategoriesViewModel>();
         SelectedNav = "Categories";
         StatusMessage = "Catalogue · Catégories";
+        IsCatalogueExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToProduits()
+    {
+        CurrentPage = _services.GetRequiredService<ProduitsViewModel>();
+        SelectedNav = "Produits";
+        StatusMessage = "Catalogue · Produits";
         IsCatalogueExpanded = true;
     }
 }

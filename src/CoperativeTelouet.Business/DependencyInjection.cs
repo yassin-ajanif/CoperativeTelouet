@@ -1,6 +1,7 @@
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.Mapping;
 using CoperativeTelouet.Business.Services;
+using CoperativeTelouet.Business.Services.Catalog;
 using CoperativeTelouet.Business.Services.Client;
 using CoperativeTelouet.Business.Services.Client.Avoir;
 using CoperativeTelouet.Business.Services.Client.BonCommande;
@@ -58,10 +59,6 @@ public static class DependencyInjection
             GenericService<Tiers, TiersDto, CreateTiersDto, UpdateTiersDto>>();
 
         services.AddScoped<
-            IGenericService<Produit, ProduitDto, CreateProduitDto, UpdateProduitDto>,
-            GenericService<Produit, ProduitDto, CreateProduitDto, UpdateProduitDto>>();
-
-        services.AddScoped<
             IGenericService<ServiceItem, ServiceItemDto, CreateServiceItemDto, UpdateServiceItemDto>,
             GenericService<ServiceItem, ServiceItemDto, CreateServiceItemDto, UpdateServiceItemDto>>();
 
@@ -71,6 +68,7 @@ public static class DependencyInjection
 
         // entities with custom logic: register the concrete service
         services.AddScoped<StockageService>();
+        services.AddScoped<IProduitService, ProduitService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IFournisseurService, FournisseurService>();
         services.AddScoped<IArticleSuggestionService, ArticleSuggestionService>();

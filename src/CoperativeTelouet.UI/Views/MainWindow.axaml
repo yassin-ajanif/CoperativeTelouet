@@ -163,6 +163,10 @@
                     Classes.selected="{Binding IsCategoriesSelected}"
                     Content="Catégories"
                     Command="{Binding NavigateToCategoriesCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsProduitsSelected}"
+                    Content="Produits"
+                    Command="{Binding NavigateToProduitsCommand}" />
           </StackPanel>
         </StackPanel>
       </ScrollViewer>
