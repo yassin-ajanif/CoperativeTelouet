@@ -41,7 +41,9 @@ public class FactureFournisseurLigneConfiguration : IEntityTypeConfiguration<Fac
 {
     public void Configure(EntityTypeBuilder<FactureFournisseurLigne> builder)
     {
-        builder.ToTable("FactureFournisseurLignes");
+        builder.ToTable("FactureFournisseurLignes", t => t.HasCheckConstraint(
+            "CK_FactureFournisseurLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.Quantite).HasPrecision(18, 3);
         builder.Property(l => l.PrixUnitaireHT).HasPrecision(18, 2);

@@ -36,7 +36,9 @@ public class DevisFournisseurLigneConfiguration : IEntityTypeConfiguration<Devis
 {
     public void Configure(EntityTypeBuilder<DevisFournisseurLigne> builder)
     {
-        builder.ToTable("DevisFournisseurLignes");
+        builder.ToTable("DevisFournisseurLignes", t => t.HasCheckConstraint(
+            "CK_DevisFournisseurLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.Quantite).HasPrecision(18, 3);
         builder.Property(l => l.PrixUnitaireHT).HasPrecision(18, 2);

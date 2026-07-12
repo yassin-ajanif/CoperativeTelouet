@@ -35,7 +35,9 @@ public class AvoirFournisseurLigneConfiguration : IEntityTypeConfiguration<Avoir
 {
     public void Configure(EntityTypeBuilder<AvoirFournisseurLigne> builder)
     {
-        builder.ToTable("AvoirFournisseurLignes");
+        builder.ToTable("AvoirFournisseurLignes", t => t.HasCheckConstraint(
+            "CK_AvoirFournisseurLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.Quantite).HasPrecision(18, 3);
         builder.Property(l => l.PrixUnitaireHT).HasPrecision(18, 2);

@@ -35,7 +35,9 @@ public class AvoirClientLigneConfiguration : IEntityTypeConfiguration<AvoirClien
 {
     public void Configure(EntityTypeBuilder<AvoirClientLigne> builder)
     {
-        builder.ToTable("AvoirClientLignes");
+        builder.ToTable("AvoirClientLignes", t => t.HasCheckConstraint(
+            "CK_AvoirClientLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.Quantite).HasPrecision(18, 3);
         builder.Property(l => l.PrixUnitaireHT).HasPrecision(18, 2);

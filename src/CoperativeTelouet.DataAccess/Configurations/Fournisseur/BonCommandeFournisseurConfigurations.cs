@@ -40,7 +40,9 @@ public class BonCommandeFournisseurLigneConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<BonCommandeFournisseurLigne> builder)
     {
-        builder.ToTable("BonCommandeFournisseurLignes");
+        builder.ToTable("BonCommandeFournisseurLignes", t => t.HasCheckConstraint(
+            "CK_BonCommandeFournisseurLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.QuantiteCommandee).HasPrecision(18, 3);
         builder.Property(l => l.PrixUnitaireHT).HasPrecision(18, 2);

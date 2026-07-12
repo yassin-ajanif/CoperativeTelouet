@@ -62,6 +62,7 @@ The app ships on SQLite for the single-user MVP but must migrate cleanly to Post
 - Prefer Fluent API migrations/config over hand-written provider-specific SQL.
 - Avoid `HasColumnType("TEXT"/"INTEGER")` unless necessary; prefer provider-agnostic mappings.
 - Define CHECK constraints in Fluent API so they regenerate on Postgres.
+- Document line tables (`*Lignes`): exactly one of `ProduitId` / `ServiceId` must be set (`CK_*_ProduitXorService`). Mirror the same rule in FluentValidation on create-line DTOs.
 - Seed with EF `HasData` or provider-agnostic seeding — no SQLite-only tricks.
 
 ### Keys

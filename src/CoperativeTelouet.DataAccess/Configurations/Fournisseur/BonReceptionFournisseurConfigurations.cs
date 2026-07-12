@@ -45,7 +45,9 @@ public class BonReceptionFournisseurLigneConfiguration : IEntityTypeConfiguratio
 {
     public void Configure(EntityTypeBuilder<BonReceptionFournisseurLigne> builder)
     {
-        builder.ToTable("BonReceptionFournisseurLignes");
+        builder.ToTable("BonReceptionFournisseurLignes", t => t.HasCheckConstraint(
+            "CK_BonReceptionFournisseurLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.QuantiteRecue).HasPrecision(18, 3);
         builder.Property(l => l.PrixUnitaireHT).HasPrecision(18, 2);

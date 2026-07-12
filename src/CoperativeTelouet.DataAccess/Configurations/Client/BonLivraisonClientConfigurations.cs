@@ -45,7 +45,9 @@ public class BonLivraisonClientLigneConfiguration : IEntityTypeConfiguration<Bon
 {
     public void Configure(EntityTypeBuilder<BonLivraisonClientLigne> builder)
     {
-        builder.ToTable("BonLivraisonClientLignes");
+        builder.ToTable("BonLivraisonClientLignes", t => t.HasCheckConstraint(
+            "CK_BonLivraisonClientLignes_ProduitXorService",
+            "(ProduitId IS NOT NULL AND ServiceId IS NULL) OR (ProduitId IS NULL AND ServiceId IS NOT NULL)"));
 
         builder.Property(l => l.QuantiteCommandee).HasPrecision(18, 3);
         builder.Property(l => l.QuantiteLivree).HasPrecision(18, 3);

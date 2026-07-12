@@ -7,6 +7,9 @@ public class CreateFactureClientLigneDtoValidator : AbstractValidator<CreateFact
 {
     public CreateFactureClientLigneDtoValidator()
     {
+        RuleFor(x => x)
+            .Must(x => (x.ProduitId.HasValue ^ x.ServiceId.HasValue))
+            .WithMessage("Chaque ligne doit référencer soit un produit, soit un service (exactement l'un des deux).");
         RuleFor(x => x.Designation)
             .NotEmpty().WithMessage("La désignation est obligatoire.");
 
