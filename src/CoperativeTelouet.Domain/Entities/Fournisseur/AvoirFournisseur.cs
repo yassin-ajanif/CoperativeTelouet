@@ -8,6 +8,7 @@ public class AvoirFournisseur : BaseEntity
     public int FactureFournisseurId { get; set; }
     public int FournisseurId { get; set; }
     public DateTime Date { get; set; }
+    public decimal TotalTtc { get; set; }
     public string? Motif { get; set; }
     public bool RetourMarchandise { get; set; }
 

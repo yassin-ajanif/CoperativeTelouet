@@ -44,12 +44,28 @@ public record CreateFactureFournisseurDto(
     DateTime Date,
     DateTime? DateEcheance,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
     List<CreateFactureFournisseurLigneDto> Lignes);
 
 public record UpdateFactureFournisseurDto(
+    int FournisseurId,
+    int? DevisFournisseurId,
     DateTime Date,
     DateTime? DateEcheance,
     bool EstPayee,
     decimal RemiseGlobale,
+    decimal TotalTtc,
+    string? Note,
+    List<CreateFactureFournisseurLigneDto> Lignes);
+
+public record FactureFournisseurListItemDto(
+    int Id,
+    string Numero,
+    int FournisseurId,
+    string FournisseurNom,
+    DateTime Date,
+    DateTime? DateEcheance,
+    bool EstPayee,
+    decimal TotalTtc,
     string? Note);

@@ -1,0 +1,23 @@
+using FluentValidation;
+using CoperativeTelouet.Business.DTOs.Client;
+
+namespace CoperativeTelouet.Business.Validation.Client.BonLivraison;
+
+public class UpdateBonLivraisonClientDtoValidator : AbstractValidator<UpdateBonLivraisonClientDto>
+{
+    public UpdateBonLivraisonClientDtoValidator()
+    {
+        RuleFor(x => x.ClientId)
+            .GreaterThan(0).WithMessage("Le client est obligatoire.");
+
+        RuleFor(x => x.Date)
+            .NotEmpty().WithMessage("La date est obligatoire.")
+            .NotEqual(default(DateTime)).WithMessage("La date est obligatoire.");
+
+        RuleFor(x => x.Lignes)
+            .NotEmpty().WithMessage("Le bon de livraison doit contenir au moins une ligne.");
+
+        RuleForEach(x => x.Lignes)
+            .SetValidator(new CreateBonLivraisonClientLigneDtoValidator());
+    }
+}

@@ -29,6 +29,7 @@ public record BonCommandeFournisseurDto(
     int? DevisFournisseurId,
     int? FactureFournisseurId,
     DateTime Date,
+    decimal TotalTtc,
     string? Note,
     List<BonCommandeFournisseurLigneDto> Lignes);
 
@@ -37,7 +38,24 @@ public record CreateBonCommandeFournisseurDto(
     int FournisseurId,
     int? DevisFournisseurId,
     DateTime Date,
+    decimal TotalTtc,
     string? Note,
     List<CreateBonCommandeFournisseurLigneDto> Lignes);
 
-public record UpdateBonCommandeFournisseurDto(DateTime Date, string? Note);
+public record UpdateBonCommandeFournisseurDto(
+    int FournisseurId,
+    int? DevisFournisseurId,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note,
+    List<CreateBonCommandeFournisseurLigneDto> Lignes);
+
+public record BonCommandeFournisseurListItemDto(
+    int Id,
+    string Numero,
+    int FournisseurId,
+    string FournisseurNom,
+    int? DevisFournisseurId,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note);

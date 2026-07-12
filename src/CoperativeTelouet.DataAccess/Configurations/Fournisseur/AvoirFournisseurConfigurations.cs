@@ -12,6 +12,8 @@ public class AvoirFournisseurConfiguration : IEntityTypeConfiguration<AvoirFourn
 
         builder.HasIndex(a => a.Numero).IsUnique();
 
+        builder.Property(a => a.TotalTtc).HasPrecision(18, 2);
+
         builder.HasOne(a => a.FactureFournisseur)
             .WithMany(f => f.Avoirs)
             .HasForeignKey(a => a.FactureFournisseurId)

@@ -3,9 +3,5 @@
              xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Vente.BonsLivraison"
              x:Class="CoperativeTelouet.UI.Views.Vente.BonsLivraison.BonsLivraisonView"
              x:DataType="vm:BonsLivraisonViewModel">
-  <Border Margin="16" Padding="24" Background="White" CornerRadius="8"
-          BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
-    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
-               Foreground="{DynamicResource BrandBlack}" />
-  </Border>
+  <ContentControl Content="{Binding Content}" />
 </UserControl>

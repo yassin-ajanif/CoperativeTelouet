@@ -200,6 +200,10 @@ namespace CoperativeTelouet.DataAccess.Migrations
                     b.Property<bool>("RetourMarchandise")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("TotalTtc")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -308,6 +312,10 @@ namespace CoperativeTelouet.DataAccess.Migrations
 
                     b.Property<string>("Numero")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalTtc")
+                        .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -423,6 +431,10 @@ namespace CoperativeTelouet.DataAccess.Migrations
 
                     b.Property<string>("Numero")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalTtc")
+                        .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -867,6 +879,10 @@ namespace CoperativeTelouet.DataAccess.Migrations
                     b.Property<bool>("RetourMarchandise")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("TotalTtc")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -975,6 +991,10 @@ namespace CoperativeTelouet.DataAccess.Migrations
 
                     b.Property<string>("Numero")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalTtc")
+                        .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1201,6 +1221,10 @@ namespace CoperativeTelouet.DataAccess.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("RemiseGlobale")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalTtc")
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 

@@ -30,6 +30,7 @@ public record BonLivraisonClientDto(
     int? BonCommandeClientId,
     int? FactureClientId,
     DateTime Date,
+    decimal TotalTtc,
     string? Note,
     List<BonLivraisonClientLigneDto> Lignes);
 
@@ -39,7 +40,24 @@ public record CreateBonLivraisonClientDto(
     int? DevisClientId,
     int? BonCommandeClientId,
     DateTime Date,
+    decimal TotalTtc,
     string? Note,
     List<CreateBonLivraisonClientLigneDto> Lignes);
 
-public record UpdateBonLivraisonClientDto(DateTime Date, string? Note);
+public record UpdateBonLivraisonClientDto(
+    int ClientId,
+    int? DevisClientId,
+    int? BonCommandeClientId,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note,
+    List<CreateBonLivraisonClientLigneDto> Lignes);
+
+public record BonLivraisonClientListItemDto(
+    int Id,
+    string Numero,
+    int ClientId,
+    string ClientNom,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note);

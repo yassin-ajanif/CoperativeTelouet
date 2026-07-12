@@ -28,6 +28,7 @@ public record AvoirClientDto(
     int FactureClientId,
     int ClientId,
     DateTime Date,
+    decimal TotalTtc,
     string? Motif,
     bool RetourMarchandise,
     List<AvoirClientLigneDto> Lignes);
@@ -37,11 +38,25 @@ public record CreateAvoirClientDto(
     int FactureClientId,
     int ClientId,
     DateTime Date,
+    decimal TotalTtc,
     string? Motif,
     bool RetourMarchandise,
     List<CreateAvoirClientLigneDto> Lignes);
 
 public record UpdateAvoirClientDto(
+    int FactureClientId,
+    int ClientId,
     DateTime Date,
+    decimal TotalTtc,
     string? Motif,
-    bool RetourMarchandise);
+    bool RetourMarchandise,
+    List<CreateAvoirClientLigneDto> Lignes);
+
+public record AvoirClientListItemDto(
+    int Id,
+    string Numero,
+    int ClientId,
+    string ClientNom,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note);

@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.DTOs.Client;
 using CoperativeTelouet.Business.Services.Client;
+using CoperativeTelouet.Business.Services.Client.Devis;
 using CoperativeTelouet.Domain.Enums;
 using CoperativeTelouet.UI.Services;
 using FluentValidation;

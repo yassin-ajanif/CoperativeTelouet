@@ -9,6 +9,7 @@ public class BonCommandeClient : BaseEntity
     public int? DevisClientId { get; set; }
     public int? FactureClientId { get; set; }
     public DateTime Date { get; set; }
+    public decimal TotalTtc { get; set; }
     public string? Note { get; set; }
 
     public Entities.Tiers Client { get; set; } = null!;

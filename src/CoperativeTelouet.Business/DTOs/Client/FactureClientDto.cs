@@ -45,14 +45,28 @@ public record CreateFactureClientDto(
     DateTime Date,
     DateTime? DateEcheance,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
     string? BonCommandeReference,
     List<CreateFactureClientLigneDto> Lignes);
 
 public record UpdateFactureClientDto(
+    int ClientId,
+    int? DevisClientId,
     DateTime Date,
     DateTime? DateEcheance,
     bool EstPayee,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
-    string? BonCommandeReference);
+    string? BonCommandeReference,
+    List<CreateFactureClientLigneDto> Lignes);
+
+public record FactureClientListItemDto(
+    int Id,
+    string Numero,
+    int ClientId,
+    string ClientNom,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note);

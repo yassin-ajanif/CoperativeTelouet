@@ -40,4 +40,21 @@ public record CreateBonReceptionFournisseurDto(
     string? Note,
     List<CreateBonReceptionFournisseurLigneDto> Lignes);
 
-public record UpdateBonReceptionFournisseurDto(DateTime Date, decimal TotalTtc, string? Note);
+public record UpdateBonReceptionFournisseurDto(
+    int BonCommandeFournisseurId,
+    int FournisseurId,
+    int? DevisFournisseurId,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note,
+    List<CreateBonReceptionFournisseurLigneDto> Lignes);
+
+public record BonReceptionFournisseurListItemDto(
+    int Id,
+    string Numero,
+    int FournisseurId,
+    string FournisseurNom,
+    int BonCommandeFournisseurId,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Note);

@@ -33,6 +33,7 @@ public record DevisFournisseurDto(
     DateTime Date,
     DateTime DateValidite,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
     List<DevisFournisseurLigneDto> Lignes,
     List<DevisFournisseurConditionDto> Conditions);
@@ -43,12 +44,26 @@ public record CreateDevisFournisseurDto(
     DateTime Date,
     DateTime DateValidite,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
     List<CreateDevisFournisseurLigneDto> Lignes,
     List<CreateDevisFournisseurConditionDto>? Conditions = null);
 
 public record UpdateDevisFournisseurDto(
+    int FournisseurId,
     DateTime Date,
     DateTime DateValidite,
     decimal RemiseGlobale,
+    decimal TotalTtc,
+    string? Note,
+    List<CreateDevisFournisseurLigneDto> Lignes);
+
+public record DevisFournisseurListItemDto(
+    int Id,
+    string Numero,
+    int FournisseurId,
+    string FournisseurNom,
+    DateTime Date,
+    DateTime DateValidite,
+    decimal TotalTtc,
     string? Note);

@@ -28,6 +28,7 @@ public record AvoirFournisseurDto(
     int FactureFournisseurId,
     int FournisseurId,
     DateTime Date,
+    decimal TotalTtc,
     string? Motif,
     bool RetourMarchandise,
     List<AvoirFournisseurLigneDto> Lignes);
@@ -37,11 +38,26 @@ public record CreateAvoirFournisseurDto(
     int FactureFournisseurId,
     int FournisseurId,
     DateTime Date,
+    decimal TotalTtc,
     string? Motif,
     bool RetourMarchandise,
     List<CreateAvoirFournisseurLigneDto> Lignes);
 
 public record UpdateAvoirFournisseurDto(
+    int FactureFournisseurId,
+    int FournisseurId,
     DateTime Date,
+    decimal TotalTtc,
     string? Motif,
-    bool RetourMarchandise);
+    bool RetourMarchandise,
+    List<CreateAvoirFournisseurLigneDto> Lignes);
+
+public record AvoirFournisseurListItemDto(
+    int Id,
+    string Numero,
+    int FournisseurId,
+    string FournisseurNom,
+    int FactureFournisseurId,
+    DateTime Date,
+    decimal TotalTtc,
+    string? Motif);

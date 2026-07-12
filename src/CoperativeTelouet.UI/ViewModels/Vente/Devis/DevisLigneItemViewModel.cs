@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CoperativeTelouet.Business.DTOs.Client;
 using CoperativeTelouet.Business.Services.Client;
+using CoperativeTelouet.Business.Services.Client.Devis;
 
 namespace CoperativeTelouet.UI.ViewModels.Vente.Devis;
 

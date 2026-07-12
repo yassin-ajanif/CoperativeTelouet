@@ -9,6 +9,7 @@ public class DevisFournisseur : BaseEntity
     public DateTime Date { get; set; }
     public DateTime DateValidite { get; set; }
     public decimal RemiseGlobale { get; set; }
+    public decimal TotalTtc { get; set; }
     public string? Note { get; set; }
 
     public Entities.Tiers Fournisseur { get; set; } = null!;

@@ -12,6 +12,8 @@ public class BonLivraisonClientConfiguration : IEntityTypeConfiguration<BonLivra
 
         builder.HasIndex(b => b.Numero).IsUnique();
 
+        builder.Property(b => b.TotalTtc).HasPrecision(18, 2);
+
         builder.HasOne(b => b.Client)
             .WithMany(t => t.BonsLivraisonClient)
             .HasForeignKey(b => b.ClientId)

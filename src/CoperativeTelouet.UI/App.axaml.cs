@@ -86,17 +86,35 @@ public partial class App : Application
         services.AddTransient<DevisListViewModel>();
         services.AddTransient<DevisDetailViewModel>();
         services.AddTransient<BonsCommandeViewModel>();
+        services.AddTransient<BonsCommandeListViewModel>();
+        services.AddTransient<BonsCommandeDetailViewModel>();
         services.AddTransient<BonsLivraisonViewModel>();
+        services.AddTransient<BonsLivraisonListViewModel>();
+        services.AddTransient<BonsLivraisonDetailViewModel>();
         services.AddTransient<FacturationViewModel>();
+        services.AddTransient<FacturationListViewModel>();
+        services.AddTransient<FacturationDetailViewModel>();
         services.AddTransient<AvoirsViewModel>();
+        services.AddTransient<AvoirsListViewModel>();
+        services.AddTransient<AvoirsDetailViewModel>();
         services.AddTransient<FournisseursViewModel>();
         services.AddTransient<FournisseursListViewModel>();
         services.AddTransient<FournisseurDetailViewModel>();
         services.AddTransient<DevisAchatViewModel>();
+        services.AddTransient<DevisAchatListViewModel>();
+        services.AddTransient<DevisAchatDetailViewModel>();
         services.AddTransient<BonsCommandeAchatViewModel>();
+        services.AddTransient<BonsCommandeAchatListViewModel>();
+        services.AddTransient<BonsCommandeAchatDetailViewModel>();
         services.AddTransient<BonsReceptionViewModel>();
+        services.AddTransient<BonsReceptionListViewModel>();
+        services.AddTransient<BonsReceptionDetailViewModel>();
         services.AddTransient<FacturationAchatViewModel>();
+        services.AddTransient<FacturationAchatListViewModel>();
+        services.AddTransient<FacturationAchatDetailViewModel>();
         services.AddTransient<AvoirFournisseurViewModel>();
+        services.AddTransient<AvoirFournisseurListViewModel>();
+        services.AddTransient<AvoirFournisseurDetailViewModel>();
 
         return services.BuildServiceProvider();
     }

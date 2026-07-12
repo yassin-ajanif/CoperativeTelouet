@@ -9,6 +9,7 @@ public class BonCommandeFournisseur : BaseEntity
     public int? DevisFournisseurId { get; set; }
     public int? FactureFournisseurId { get; set; }
     public DateTime Date { get; set; }
+    public decimal TotalTtc { get; set; }
     public string? Note { get; set; }
 
     public Entities.Tiers Fournisseur { get; set; } = null!;

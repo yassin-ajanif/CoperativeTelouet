@@ -2,7 +2,17 @@ using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.Mapping;
 using CoperativeTelouet.Business.Services;
 using CoperativeTelouet.Business.Services.Client;
+using CoperativeTelouet.Business.Services.Client.Avoir;
+using CoperativeTelouet.Business.Services.Client.BonCommande;
+using CoperativeTelouet.Business.Services.Client.BonLivraison;
+using CoperativeTelouet.Business.Services.Client.Devis;
+using CoperativeTelouet.Business.Services.Client.Facture;
 using CoperativeTelouet.Business.Services.Fournisseur;
+using CoperativeTelouet.Business.Services.Fournisseur.Avoir;
+using CoperativeTelouet.Business.Services.Fournisseur.BonCommande;
+using CoperativeTelouet.Business.Services.Fournisseur.BonReception;
+using CoperativeTelouet.Business.Services.Fournisseur.Devis;
+using CoperativeTelouet.Business.Services.Fournisseur.Facture;
 using CoperativeTelouet.Business.Services.Stockage;
 using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.Domain.Entities;
@@ -63,7 +73,17 @@ public static class DependencyInjection
         services.AddScoped<StockageService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IFournisseurService, FournisseurService>();
+        services.AddScoped<IArticleSuggestionService, ArticleSuggestionService>();
         services.AddScoped<IDevisClientService, DevisClientService>();
+        services.AddScoped<IBonCommandeClientService, BonCommandeClientService>();
+        services.AddScoped<IBonLivraisonClientService, BonLivraisonClientService>();
+        services.AddScoped<IFactureClientService, FactureClientService>();
+        services.AddScoped<IAvoirClientService, AvoirClientService>();
+        services.AddScoped<IDevisFournisseurService, DevisFournisseurService>();
+        services.AddScoped<IBonCommandeFournisseurService, BonCommandeFournisseurService>();
+        services.AddScoped<IBonReceptionFournisseurService, BonReceptionFournisseurService>();
+        services.AddScoped<IFactureFournisseurService, FactureFournisseurService>();
+        services.AddScoped<IAvoirFournisseurService, AvoirFournisseurService>();
 
         return services;
     }

@@ -12,6 +12,8 @@ public class AvoirClientConfiguration : IEntityTypeConfiguration<AvoirClient>
 
         builder.HasIndex(a => a.Numero).IsUnique();
 
+        builder.Property(a => a.TotalTtc).HasPrecision(18, 2);
+
         builder.HasOne(a => a.FactureClient)
             .WithMany(f => f.Avoirs)
             .HasForeignKey(a => a.FactureClientId)

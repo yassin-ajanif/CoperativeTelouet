@@ -12,6 +12,8 @@ public class BonCommandeFournisseurConfiguration : IEntityTypeConfiguration<BonC
 
         builder.HasIndex(b => b.Numero).IsUnique();
 
+        builder.Property(b => b.TotalTtc).HasPrecision(18, 2);
+
         builder.HasOne(b => b.Fournisseur)
             .WithMany(t => t.BonsCommandeFournisseur)
             .HasForeignKey(b => b.FournisseurId)
