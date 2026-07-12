@@ -16,6 +16,7 @@ using CoperativeTelouet.UI.ViewModels.Vente.BonsLivraison;
 using CoperativeTelouet.UI.ViewModels.Vente.Clients;
 using CoperativeTelouet.UI.ViewModels.Vente.Devis;
 using CoperativeTelouet.UI.ViewModels.Vente.Facturation;
+using CoperativeTelouet.UI.ViewModels.Stockage;
 using CoperativeTelouet.UI.Views;
 using CoperativeTelouet.UI.Services;
 using Microsoft.Extensions.Configuration;
@@ -134,6 +135,11 @@ public partial class App : Application
         services.AddTransient<AvoirFournisseurViewModel>();
         services.AddTransient<AvoirFournisseurListViewModel>();
         services.AddTransient<AvoirFournisseurDetailViewModel>();
+        services.AddTransient<StockageDashboardViewModel>();
+        services.AddTransient<BonsEntreeListViewModel>();
+        services.AddTransient<BonsSortieListViewModel>();
+        services.AddTransient<ChambresFroidesViewModel>();
+        services.AddTransient<VarietesPommeViewModel>();
 
         return services.BuildServiceProvider();
     }

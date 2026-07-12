@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Dialogs"
+        x:Class="CoperativeTelouet.UI.Views.Dialogs.BonSortieEditDialogView"
+        x:DataType="vm:BonSortieEditDialogViewModel"
+        Title="Nouveau bon de sortie"
+        Width="460"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+  <Border Padding="20">
+    <StackPanel Spacing="12">
+      <TextBlock Text="Nouveau bon de sortie"
+                 FontSize="18"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource BrandBlack}" />
+
+      <TextBlock Text="N°" Opacity="0.7" FontSize="12" />
+      <TextBox Text="{Binding Numero}" Watermark="Ex. BS-2026-09" />
+
+      <TextBlock Text="Client" Opacity="0.7" FontSize="12" />
+      <TextBox Text="{Binding ClientNom}" Watermark="Nom du client" />
+
+      <TextBlock Text="Date de sortie" Opacity="0.7" FontSize="12" />
+      <TextBox Text="{Binding DateText}" Watermark="jj/mm/aaaa" />
+
+      <TextBlock Text="État" Opacity="0.7" FontSize="12" />
+      <ComboBox ItemsSource="{Binding EtatOptions}"
+                SelectedItem="{Binding EtatBac}"
+                HorizontalAlignment="Stretch" />
+
+      <TextBlock Text="Nombre de bacs" Opacity="0.7" FontSize="12" />
+      <TextBox Text="{Binding NombreBacsText}" Watermark="Ex. 20" />
+
+      <StackPanel Spacing="12" IsVisible="{Binding IsPlein}">
+        <TextBlock Text="Bon d'entrée" Opacity="0.7" FontSize="12" />
+        <ComboBox ItemsSource="{Binding BonEntreeOptions}"
+                  SelectedItem="{Binding SelectedBonEntree}"
+                  HorizontalAlignment="Stretch" />
+
+        <TextBlock Text="Facture (optionnel)" Opacity="0.7" FontSize="12" />
+        <TextBox Text="{Binding FactureNumero}" Watermark="Ex. FC-2026-04" />
+      </StackPanel>
+
+      <TextBlock Text="{Binding ErrorMessage}"
+                 Foreground="IndianRed"
+                 TextWrapping="Wrap"
+                 IsVisible="{Binding HasError}" />
+
+      <StackPanel Orientation="Horizontal"
+                  Spacing="8"
+                  HorizontalAlignment="Right"
+                  Margin="0,8,0,0">
+        <Button Content="Annuler"
+                Command="{Binding AnnulerCommand}"
+                MinWidth="88" />
+        <Button Content="Enregistrer"
+                Classes="accent-green"
+                Command="{Binding EnregistrerCommand}"
+                MinWidth="100" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

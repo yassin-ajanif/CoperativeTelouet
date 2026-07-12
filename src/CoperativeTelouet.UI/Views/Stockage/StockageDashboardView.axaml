@@ -1,0 +1,183 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Stockage"
+             x:Class="CoperativeTelouet.UI.Views.Stockage.StockageDashboardView"
+             x:DataType="vm:StockageDashboardViewModel">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="16" Spacing="16">
+
+      <!-- Title -->
+      <Border Padding="16" Background="White" CornerRadius="8"
+              BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Stockage froid"
+                     FontSize="22" FontWeight="SemiBold"
+                     Foreground="{DynamicResource BrandBlack}" />
+          <TextBlock Text="Location de bacs — chambres froides"
+                     Foreground="{DynamicResource BrandGreen}" />
+        </StackPanel>
+      </Border>
+
+      <!-- KPI cards -->
+      <UniformGrid Columns="4" Rows="1">
+        <Border Margin="0,0,8,0" Padding="16" Background="White" CornerRadius="8"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Bacs vides" Opacity="0.6" FontSize="12" />
+            <TextBlock Text="{Binding BacsVides}" FontSize="28" FontWeight="SemiBold"
+                       Foreground="{DynamicResource BrandGreen}" />
+            <TextBlock Text="{Binding BacsVidesSubtitle}" Opacity="0.55" FontSize="12" />
+          </StackPanel>
+        </Border>
+
+        <Border Margin="4,0" Padding="16" Background="White" CornerRadius="8"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Bacs pleins" Opacity="0.6" FontSize="12" />
+            <TextBlock Text="{Binding BacsPleins}" FontSize="28" FontWeight="SemiBold"
+                       Foreground="{DynamicResource BrandRed}" />
+            <TextBlock Text="en chambre" Opacity="0.55" FontSize="12" />
+          </StackPanel>
+        </Border>
+
+        <Border Margin="4,0" Padding="16" Background="White" CornerRadius="8"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Occupation" Opacity="0.6" FontSize="12" />
+            <TextBlock Text="{Binding OccupationPercentLabel}" FontSize="28" FontWeight="SemiBold"
+                       Foreground="{DynamicResource BrandBlack}" />
+            <TextBlock Text="{Binding ChambresResume}" Opacity="0.55" FontSize="12" />
+          </StackPanel>
+        </Border>
+
+        <Border Margin="8,0,0,0" Padding="16" Background="White" CornerRadius="8"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Tarif / jour" Opacity="0.6" FontSize="12" />
+            <TextBlock Text="{Binding TarifParJourLabel}" FontSize="28" FontWeight="SemiBold"
+                       Foreground="{DynamicResource BrandBlack}" />
+            <TextBlock Text="par bac" Opacity="0.55" FontSize="12" />
+          </StackPanel>
+        </Border>
+      </UniformGrid>
+
+      <!-- Quick actions -->
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Classes="accent-green" Content="+ Bon d'entrée"
+                Command="{Binding NouveauBonEntreeCommand}" />
+        <Button Classes="accent" Content="+ Bon de sortie"
+                Command="{Binding NouveauBonSortieCommand}" />
+        <Button Content="Gérer chambres"
+                Command="{Binding GererChambresCommand}" />
+        <TextBlock Text="{Binding ActionHint}"
+                   VerticalAlignment="Center"
+                   Margin="12,0,0,0"
+                   Opacity="0.55"
+                   FontSize="12" />
+      </StackPanel>
+
+      <!-- Chambres + Lots -->
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+        <Border Grid.Column="0" Padding="16" Background="White" CornerRadius="8"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Chambres froides" FontWeight="SemiBold" FontSize="16" />
+            <ItemsControl ItemsSource="{Binding Chambres}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ChambreOccupancyItemViewModel">
+                  <StackPanel Margin="0,0,0,12" Spacing="4">
+                    <DockPanel>
+                      <TextBlock Text="{Binding OccupancyLabel}"
+                                 DockPanel.Dock="Right"
+                                 Opacity="0.6" FontSize="12"
+                                 VerticalAlignment="Center" />
+                      <TextBlock Text="{Binding Nom}" FontWeight="SemiBold" />
+                    </DockPanel>
+                    <ProgressBar Minimum="0"
+                                 Maximum="{Binding Capacite}"
+                                 Value="{Binding Occupes}"
+                                 Height="10"
+                                 Foreground="{DynamicResource BrandGreen}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Padding="16" Background="White" CornerRadius="8"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Lots en cours" FontWeight="SemiBold" FontSize="16" />
+            <DataGrid ItemsSource="{Binding LotsEnCours}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="False"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      MaxHeight="220">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Lot"
+                                    Binding="{Binding NumeroLot, Mode=OneWay}"
+                                    Width="80" />
+                <DataGridTextColumn Header="Client"
+                                    Binding="{Binding ClientNom, Mode=OneWay}"
+                                    Width="*" />
+                <DataGridTextColumn Header="Bacs"
+                                    Binding="{Binding NombreBacs, Mode=OneWay}"
+                                    Width="60" />
+                <DataGridTextColumn Header="Chambre"
+                                    Binding="{Binding ChambreNom, Mode=OneWay}"
+                                    Width="100" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <!-- Recent movements -->
+      <Border Padding="16" Background="White" CornerRadius="8"
+              BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Derniers mouvements" FontWeight="SemiBold" FontSize="16" />
+          <DataGrid ItemsSource="{Binding Mouvements}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    CanUserResizeColumns="True"
+                    CanUserSortColumns="False"
+                    HeadersVisibility="Column"
+                    GridLinesVisibility="Horizontal"
+                    BorderThickness="0"
+                    MinHeight="160">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Date"
+                                  Binding="{Binding DateDisplay, Mode=OneWay}"
+                                  Width="110" />
+              <DataGridTextColumn Header="Type"
+                                  Binding="{Binding Type, Mode=OneWay}"
+                                  Width="80" />
+              <DataGridTextColumn Header="N°"
+                                  Binding="{Binding Numero, Mode=OneWay}"
+                                  Width="120" />
+              <DataGridTextColumn Header="Client"
+                                  Binding="{Binding ClientNom, Mode=OneWay}"
+                                  Width="*" />
+              <DataGridTextColumn Header="État"
+                                  Binding="{Binding EtatBac, Mode=OneWay}"
+                                  Width="70" />
+              <DataGridTextColumn Header="Bacs"
+                                  Binding="{Binding NombreBacs, Mode=OneWay}"
+                                  Width="60" />
+              <DataGridTextColumn Header="Lot"
+                                  Binding="{Binding LotOuTiret, Mode=OneWay}"
+                                  Width="80" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

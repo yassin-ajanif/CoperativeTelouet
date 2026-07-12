@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Stockage"
+             x:Class="CoperativeTelouet.UI.Views.Stockage.BonsEntreeListView"
+             x:DataType="vm:BonsEntreeListViewModel">
+  <Border Margin="16" Padding="16" Background="White" CornerRadius="8"
+          BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+      <DockPanel Grid.Row="0">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+          <Button Content="Actualiser" Command="{Binding ActualiserCommand}" Padding="16,8" />
+          <Button Content="Nouveau" Classes="accent-green"
+                  Command="{Binding NouveauCommand}" Padding="16,8" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+          <TextBlock Text="Bons d'entrée"
+                     FontSize="22" FontWeight="SemiBold"
+                     Foreground="{DynamicResource BrandBlack}" />
+          <TextBox Watermark="Recherche (n°, client, lot)"
+                   Text="{Binding SearchText}"
+                   Width="280"
+                   HorizontalAlignment="Left" />
+        </StackPanel>
+      </DockPanel>
+
+      <DataGrid Grid.Row="1"
+                ItemsSource="{Binding Items}"
+                SelectedItem="{Binding SelectedItem}"
+                IsReadOnly="True"
+                AutoGenerateColumns="False"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="N°" Binding="{Binding Numero, Mode=OneWay}" Width="130" />
+          <DataGridTextColumn Header="Client" Binding="{Binding ClientNom, Mode=OneWay}" Width="*" />
+          <DataGridTextColumn Header="Date" Binding="{Binding DateDisplay, Mode=OneWay}" Width="100" />
+          <DataGridTextColumn Header="État" Binding="{Binding EtatBac, Mode=OneWay}" Width="70" />
+          <DataGridTextColumn Header="Bacs" Binding="{Binding NombreBacs, Mode=OneWay}" Width="60" />
+          <DataGridTextColumn Header="Chambre" Binding="{Binding ChambreNom, Mode=OneWay}" Width="100" />
+          <DataGridTextColumn Header="Variété" Binding="{Binding VarieteNom, Mode=OneWay}" Width="100" />
+          <DataGridTextColumn Header="Lot" Binding="{Binding NumeroLot, Mode=OneWay}" Width="80" />
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <TextBlock Grid.Row="2"
+                 Text="{Binding StatusHint}"
+                 Opacity="0.55"
+                 FontSize="12" />
+    </Grid>
+  </Border>
+</UserControl>

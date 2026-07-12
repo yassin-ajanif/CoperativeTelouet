@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Stockage"
+             x:Class="CoperativeTelouet.UI.Views.Stockage.VarietesPommeView"
+             x:DataType="vm:VarietesPommeViewModel">
+  <Grid Margin="16" RowDefinitions="Auto,*,Auto" RowSpacing="12">
+    <DockPanel Grid.Row="0">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+        <Button Content="Nouveau" Command="{Binding NouveauCommand}" Padding="16,8" />
+      </StackPanel>
+      <StackPanel Spacing="4">
+        <TextBlock Text="Variétés de pomme"
+                   FontSize="22" FontWeight="SemiBold"
+                   Foreground="{DynamicResource BrandBlack}" />
+        <TextBlock Text="Catalogue des variétés pour les entrées plein"
+                   Foreground="{DynamicResource BrandGreen}" />
+      </StackPanel>
+    </DockPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,280" ColumnSpacing="16">
+      <Border Grid.Column="0" Padding="16" Background="White" CornerRadius="8"
+              BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+        <DataGrid ItemsSource="{Binding Items}"
+                  SelectedItem="{Binding SelectedItem}"
+                  IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=OneWay}" Width="50" />
+            <DataGridTextColumn Header="Nom" Binding="{Binding Nom, Mode=OneWay}" Width="*" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </Border>
+
+      <Border Grid.Column="1" Padding="16" Background="White" CornerRadius="8"
+              BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Détail" FontWeight="SemiBold" FontSize="16" />
+          <TextBox Watermark="Nom de la variété" Text="{Binding Nom}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Enregistrer"
+                    Classes="accent-green"
+                    Command="{Binding EnregistrerCommand}" />
+            <Button Content="Supprimer"
+                    Command="{Binding SupprimerCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <TextBlock Grid.Row="2"
+               Text="{Binding StatusHint}"
+               Opacity="0.55"
+               FontSize="12" />
+  </Grid>
+</UserControl>

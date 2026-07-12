@@ -12,6 +12,7 @@ using CoperativeTelouet.UI.ViewModels.Vente.BonsLivraison;
 using CoperativeTelouet.UI.ViewModels.Vente.Clients;
 using CoperativeTelouet.UI.ViewModels.Vente.Devis;
 using CoperativeTelouet.UI.ViewModels.Vente.Facturation;
+using CoperativeTelouet.UI.ViewModels.Stockage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CoperativeTelouet.UI.ViewModels;
@@ -42,6 +43,11 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsAvoirFournisseurSelected))]
     [NotifyPropertyChangedFor(nameof(IsCategoriesSelected))]
     [NotifyPropertyChangedFor(nameof(IsProduitsSelected))]
+    [NotifyPropertyChangedFor(nameof(IsStockageDashboardSelected))]
+    [NotifyPropertyChangedFor(nameof(IsBonsEntreeSelected))]
+    [NotifyPropertyChangedFor(nameof(IsBonsSortieSelected))]
+    [NotifyPropertyChangedFor(nameof(IsChambresFroidesSelected))]
+    [NotifyPropertyChangedFor(nameof(IsVarietesPommeSelected))]
     private string _selectedNav = "Accueil";
 
     [ObservableProperty]
@@ -51,6 +57,10 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AchatChevron))]
     private bool _isAchatExpanded = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StockageChevron))]
+    private bool _isStockageExpanded;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CatalogueChevron))]
@@ -71,9 +81,15 @@ public partial class MainViewModel : ViewModelBase
     public bool IsAvoirFournisseurSelected => SelectedNav == "AvoirFournisseur";
     public bool IsCategoriesSelected => SelectedNav == "Categories";
     public bool IsProduitsSelected => SelectedNav == "Produits";
+    public bool IsStockageDashboardSelected => SelectedNav == "StockageDashboard";
+    public bool IsBonsEntreeSelected => SelectedNav == "BonsEntree";
+    public bool IsBonsSortieSelected => SelectedNav == "BonsSortie";
+    public bool IsChambresFroidesSelected => SelectedNav == "ChambresFroides";
+    public bool IsVarietesPommeSelected => SelectedNav == "VarietesPomme";
 
     public string VenteChevron => IsVenteExpanded ? "▼" : "▶";
     public string AchatChevron => IsAchatExpanded ? "▼" : "▶";
+    public string StockageChevron => IsStockageExpanded ? "▼" : "▶";
     public string CatalogueChevron => IsCatalogueExpanded ? "▼" : "▶";
 
     public MainViewModel(IServiceProvider services)
@@ -89,7 +105,55 @@ public partial class MainViewModel : ViewModelBase
     private void ToggleAchat() => IsAchatExpanded = !IsAchatExpanded;
 
     [RelayCommand]
+    private void ToggleStockage() => IsStockageExpanded = !IsStockageExpanded;
+
+    [RelayCommand]
     private void ToggleCatalogue() => IsCatalogueExpanded = !IsCatalogueExpanded;
+
+    [RelayCommand]
+    private void NavigateToStockageDashboard()
+    {
+        CurrentPage = _services.GetRequiredService<StockageDashboardViewModel>();
+        SelectedNav = "StockageDashboard";
+        StatusMessage = "Stockage · Tableau de bord";
+        IsStockageExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToBonsEntree()
+    {
+        CurrentPage = _services.GetRequiredService<BonsEntreeListViewModel>();
+        SelectedNav = "BonsEntree";
+        StatusMessage = "Stockage · Entrées";
+        IsStockageExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToBonsSortie()
+    {
+        CurrentPage = _services.GetRequiredService<BonsSortieListViewModel>();
+        SelectedNav = "BonsSortie";
+        StatusMessage = "Stockage · Sorties";
+        IsStockageExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToChambresFroides()
+    {
+        CurrentPage = _services.GetRequiredService<ChambresFroidesViewModel>();
+        SelectedNav = "ChambresFroides";
+        StatusMessage = "Stockage · Chambres";
+        IsStockageExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToVarietesPomme()
+    {
+        CurrentPage = _services.GetRequiredService<VarietesPommeViewModel>();
+        SelectedNav = "VarietesPomme";
+        StatusMessage = "Stockage · Variétés";
+        IsStockageExpanded = true;
+    }
 
     [RelayCommand]
     private void NavigateToAccueil()

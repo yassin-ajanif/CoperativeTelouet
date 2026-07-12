@@ -143,6 +143,44 @@
                     Command="{Binding NavigateToAvoirFournisseurCommand}" />
           </StackPanel>
 
+          <!-- Stockage -->
+          <Button Classes="nav-section"
+                  Command="{Binding ToggleStockageCommand}">
+            <DockPanel>
+              <TextBlock Text="{Binding StockageChevron}"
+                         DockPanel.Dock="Left"
+                         Width="16"
+                         FontSize="10"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="Stockage" VerticalAlignment="Center" />
+            </DockPanel>
+          </Button>
+
+          <StackPanel Spacing="4"
+                      Margin="12,0,0,0"
+                      IsVisible="{Binding IsStockageExpanded}">
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsStockageDashboardSelected}"
+                    Content="Tableau de bord"
+                    Command="{Binding NavigateToStockageDashboardCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsBonsEntreeSelected}"
+                    Content="Entrées"
+                    Command="{Binding NavigateToBonsEntreeCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsBonsSortieSelected}"
+                    Content="Sorties"
+                    Command="{Binding NavigateToBonsSortieCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsChambresFroidesSelected}"
+                    Content="Chambres"
+                    Command="{Binding NavigateToChambresFroidesCommand}" />
+            <Button Classes="nav"
+                    Classes.selected="{Binding IsVarietesPommeSelected}"
+                    Content="Variétés"
+                    Command="{Binding NavigateToVarietesPommeCommand}" />
+          </StackPanel>
+
           <!-- Catalogue (existing CRUD) -->
           <Button Classes="nav-section"
                   Command="{Binding ToggleCatalogueCommand}">
