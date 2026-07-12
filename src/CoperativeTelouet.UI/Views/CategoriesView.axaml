@@ -47,7 +47,7 @@
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="Enregistrer"
                     Command="{Binding SaveCommand}"
-                    Classes="accent" />
+                    Classes="accent-green" />
             <Button Content="Supprimer"
                     Command="{Binding DeleteCommand}" />
           </StackPanel>

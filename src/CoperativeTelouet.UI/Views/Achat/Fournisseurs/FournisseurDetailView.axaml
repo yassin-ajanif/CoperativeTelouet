@@ -55,7 +55,7 @@
           <CheckBox Content="Actif" IsChecked="{Binding Actif}" />
 
           <Button Content="Enregistrer"
-                  Classes="accent"
+                  Classes="accent-green"
                   Command="{Binding SaveCommand}"
                   HorizontalAlignment="Stretch"
                   Padding="12,8"
