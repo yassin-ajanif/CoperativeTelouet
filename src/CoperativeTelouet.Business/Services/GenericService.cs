@@ -1,4 +1,5 @@
 using AutoMapper;
+using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.DataAccess.Repositories;
 using CoperativeTelouet.Domain.Common;
 using FluentValidation;
@@ -40,6 +41,17 @@ public class GenericService<TEntity, TDto, TCreateDto, TUpdateDto>
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
         => Mapper.Map<IReadOnlyList<TDto>>(await Repo.FindAsync(predicate, cancellationToken));
+
+    public async Task<PagedResult<TDto>> QueryPagedAsync(
+        Expression<Func<TEntity, bool>>? predicate,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var (items, totalCount) = await Repo.QueryPagedAsync(predicate, orderBy, page, pageSize, cancellationToken);
+        return new PagedResult<TDto>(Mapper.Map<IReadOnlyList<TDto>>(items), totalCount);
+    }
 
     public async Task<TDto> CreateAsync(TCreateDto dto, CancellationToken cancellationToken = default)
     {

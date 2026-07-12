@@ -35,6 +35,7 @@ public interface IDevisClientRepository { Task<DevisClient?> GetByIdAsync(int id
 ## Repository queries
 
 - Use `FindAsync(Expression<Func<T, bool>>)` so filters run in SQL (`WHERE`), not `GetAllAsync()` then `.Where` in memory.
+- Use `QueryPagedAsync(predicate, orderBy, page, pageSize)` for list screens — `Count` + `Skip`/`Take` in SQL; Business returns `PagedResult<TDto>` via `GenericService.QueryPagedAsync`.
 - `GetByIdAsync` is primary-key lookup only — not “by foreign key / client id”.
 - Funnel all DB access through repositories; do not open ad-hoc connections from Business/UI.
 
