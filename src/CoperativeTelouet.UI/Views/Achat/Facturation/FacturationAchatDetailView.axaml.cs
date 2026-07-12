@@ -34,7 +34,6 @@ public partial class FacturationAchatDetailView : UserControl
             or nameof(FacturationAchatDetailViewModel.ShowColPrix)
             or nameof(FacturationAchatDetailViewModel.ShowColRemise)
             or nameof(FacturationAchatDetailViewModel.ShowColTva)
-            or nameof(FacturationAchatDetailViewModel.ShowColConditionnement)
             or nameof(FacturationAchatDetailViewModel.ShowColHt)
             or nameof(FacturationAchatDetailViewModel.ShowColTtc))
             ApplyColumnVisibility();
@@ -42,15 +41,14 @@ public partial class FacturationAchatDetailView : UserControl
 
     private void ApplyColumnVisibility()
     {
-        if (_vm is null || LinesGrid.Columns.Count < 9) return;
+        if (_vm is null || LinesGrid.Columns.Count < 8) return;
         LinesGrid.Columns[0].IsVisible = _vm.ShowColRef;
         LinesGrid.Columns[1].IsVisible = _vm.ShowColDesignation;
         LinesGrid.Columns[2].IsVisible = _vm.ShowColQte;
         LinesGrid.Columns[3].IsVisible = _vm.ShowColPrix;
         LinesGrid.Columns[4].IsVisible = _vm.ShowColRemise;
         LinesGrid.Columns[5].IsVisible = _vm.ShowColTva;
-        LinesGrid.Columns[6].IsVisible = _vm.ShowColConditionnement;
-        LinesGrid.Columns[7].IsVisible = _vm.ShowColHt;
-        LinesGrid.Columns[8].IsVisible = _vm.ShowColTtc;
+        LinesGrid.Columns[6].IsVisible = _vm.ShowColHt;
+        LinesGrid.Columns[7].IsVisible = _vm.ShowColTtc;
     }
 }

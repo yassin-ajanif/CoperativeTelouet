@@ -111,7 +111,6 @@
             <CheckBox Content="Prix" IsChecked="{Binding ShowColPrix}" Margin="0,0,8,0" />
             <CheckBox Content="Remise" IsChecked="{Binding ShowColRemise}" Margin="0,0,8,0" />
             <CheckBox Content="TVA" IsChecked="{Binding ShowColTva}" Margin="0,0,8,0" />
-            <CheckBox Content="Cond." IsChecked="{Binding ShowColConditionnement}" Margin="0,0,8,0" />
             <CheckBox Content="HT" IsChecked="{Binding ShowColHt}" Margin="0,0,8,0" />
             <CheckBox Content="TTC" IsChecked="{Binding ShowColTtc}" Margin="0,0,8,0" />
           </WrapPanel>
@@ -143,9 +142,6 @@
               <DataGridTextColumn Header="TVA %"
                                   Binding="{Binding TauxTva}"
                                   Width="70" />
-              <DataGridTextColumn Header="Cond."
-                                  Binding="{Binding Conditionnement}"
-                                  Width="90" />
               <DataGridTextColumn Header="Montant HT"
                                   Binding="{Binding MontantHt, StringFormat=N2}"
                                   Width="110"

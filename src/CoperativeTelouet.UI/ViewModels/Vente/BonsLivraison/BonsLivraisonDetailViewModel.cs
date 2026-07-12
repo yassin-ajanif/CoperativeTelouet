@@ -213,13 +213,31 @@ public partial class BonsLivraisonDetailViewModel : ViewModelBase
     private void AddArticle(ArticleSuggestionDto? article)
     {
         if (article is null) return;
-        var line = BonLivraisonLigneItemViewModel.FromArticle(article);
-        line.PropertyChanged += OnLignePropertyChanged;
-        Lignes.Add(line);
+
+        var existing = FindExistingLigne(article);
+        if (existing is not null)
+        {
+            existing.QuantiteCommandee += 1;
+            existing.Quantite += 1;
+            SelectedLigne = existing;
+        }
+        else
+        {
+            var line = BonLivraisonLigneItemViewModel.FromArticle(article);
+            line.PropertyChanged += OnLignePropertyChanged;
+            Lignes.Add(line);
+            SelectedLigne = line;
+        }
+
         ArticleSearch = string.Empty;
         ShowSuggestions = false;
         NotifyTotals();
     }
+
+    private BonLivraisonLigneItemViewModel? FindExistingLigne(ArticleSuggestionDto article) =>
+        Lignes.FirstOrDefault(l =>
+            (article.ProduitId is not null && l.ProduitId == article.ProduitId)
+            || (article.ServiceId is not null && l.ServiceId == article.ServiceId));
 
     [RelayCommand]
     private void RemoveSelectedLigne()

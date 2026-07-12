@@ -34,7 +34,6 @@ public partial class AvoirsDetailView : UserControl
             or nameof(AvoirsDetailViewModel.ShowColPrix)
             or nameof(AvoirsDetailViewModel.ShowColRemise)
             or nameof(AvoirsDetailViewModel.ShowColTva)
-            or nameof(AvoirsDetailViewModel.ShowColConditionnement)
             or nameof(AvoirsDetailViewModel.ShowColHt)
             or nameof(AvoirsDetailViewModel.ShowColTtc))
             ApplyColumnVisibility();
@@ -42,15 +41,14 @@ public partial class AvoirsDetailView : UserControl
 
     private void ApplyColumnVisibility()
     {
-        if (_vm is null || LinesGrid.Columns.Count < 9) return;
+        if (_vm is null || LinesGrid.Columns.Count < 8) return;
         LinesGrid.Columns[0].IsVisible = _vm.ShowColRef;
         LinesGrid.Columns[1].IsVisible = _vm.ShowColDesignation;
         LinesGrid.Columns[2].IsVisible = _vm.ShowColQte;
         LinesGrid.Columns[3].IsVisible = _vm.ShowColPrix;
         LinesGrid.Columns[4].IsVisible = _vm.ShowColRemise;
         LinesGrid.Columns[5].IsVisible = _vm.ShowColTva;
-        LinesGrid.Columns[6].IsVisible = _vm.ShowColConditionnement;
-        LinesGrid.Columns[7].IsVisible = _vm.ShowColHt;
-        LinesGrid.Columns[8].IsVisible = _vm.ShowColTtc;
+        LinesGrid.Columns[6].IsVisible = _vm.ShowColHt;
+        LinesGrid.Columns[7].IsVisible = _vm.ShowColTtc;
     }
 }

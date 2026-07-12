@@ -210,13 +210,30 @@ public partial class BonsCommandeAchatDetailViewModel : ViewModelBase
     private void AddArticle(ArticleSuggestionDto? article)
     {
         if (article is null) return;
-        var line = BonsCommandeAchatLigneItemViewModel.FromArticle(article);
-        line.PropertyChanged += OnLignePropertyChanged;
-        Lignes.Add(line);
+
+        var existing = FindExistingLigne(article);
+        if (existing is not null)
+        {
+            existing.QuantiteCommandee += 1;
+            SelectedLigne = existing;
+        }
+        else
+        {
+            var line = BonsCommandeAchatLigneItemViewModel.FromArticle(article);
+            line.PropertyChanged += OnLignePropertyChanged;
+            Lignes.Add(line);
+            SelectedLigne = line;
+        }
+
         ArticleSearch = string.Empty;
         ShowSuggestions = false;
         NotifyTotals();
     }
+
+    private BonsCommandeAchatLigneItemViewModel? FindExistingLigne(ArticleSuggestionDto article) =>
+        Lignes.FirstOrDefault(l =>
+            (article.ProduitId is not null && l.ProduitId == article.ProduitId)
+            || (article.ServiceId is not null && l.ServiceId == article.ServiceId));
 
     [RelayCommand]
     private void RemoveSelectedLigne()
