@@ -63,6 +63,7 @@ public static class DependencyInjection
         services.AddScoped<StockageService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IFournisseurService, FournisseurService>();
+        services.AddScoped<IDevisClientService, DevisClientService>();
 
         return services;
     }

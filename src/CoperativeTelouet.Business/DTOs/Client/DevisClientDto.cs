@@ -33,6 +33,7 @@ public record DevisClientDto(
     DateTime Date,
     DateTime DateValidite,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
     List<DevisClientLigneDto> Lignes,
     List<DevisClientConditionDto> Conditions);
@@ -43,12 +44,35 @@ public record CreateDevisClientDto(
     DateTime Date,
     DateTime DateValidite,
     decimal RemiseGlobale,
+    decimal TotalTtc,
     string? Note,
     List<CreateDevisClientLigneDto> Lignes,
     List<CreateDevisClientConditionDto>? Conditions = null);
 
 public record UpdateDevisClientDto(
+    int ClientId,
     DateTime Date,
     DateTime DateValidite,
     decimal RemiseGlobale,
+    decimal TotalTtc,
+    string? Note,
+    List<CreateDevisClientLigneDto> Lignes);
+
+public record DevisClientListItemDto(
+    int Id,
+    string Numero,
+    int ClientId,
+    string ClientNom,
+    DateTime Date,
+    DateTime DateValidite,
+    decimal TotalTtc,
     string? Note);
+
+public record ArticleSuggestionDto(
+    int? ProduitId,
+    int? ServiceId,
+    string Reference,
+    string Designation,
+    string? Unite,
+    decimal PrixUnitaireHT,
+    decimal TauxTVA);

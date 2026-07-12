@@ -14,6 +14,18 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         => await Set.FindAsync([id], cancellationToken);
 
+    public async Task<T?> GetByIdWithNavigationsAsync(
+        int id,
+        Expression<Func<T, object>>[] includes,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = Set;
+        foreach (var include in includes)
+            query = query.Include(include);
+
+        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
         => await Set.AsNoTracking().ToListAsync(cancellationToken);
 
@@ -58,7 +70,9 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        Set.Update(entity);
+        if (Db.Entry(entity).State == EntityState.Detached)
+            Set.Update(entity);
+
         await Db.SaveChangesAsync(cancellationToken);
     }
 

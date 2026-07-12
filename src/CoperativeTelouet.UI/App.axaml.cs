@@ -82,6 +82,8 @@ public partial class App : Application
         services.AddTransient<ClientsListViewModel>();
         services.AddTransient<ClientDetailViewModel>();
         services.AddTransient<DevisViewModel>();
+        services.AddTransient<DevisListViewModel>();
+        services.AddTransient<DevisDetailViewModel>();
         services.AddTransient<BonsCommandeViewModel>();
         services.AddTransient<BonsLivraisonViewModel>();
         services.AddTransient<FacturationViewModel>();

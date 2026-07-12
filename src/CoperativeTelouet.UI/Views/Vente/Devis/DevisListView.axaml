@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Vente.Devis"
+             xmlns:dto="using:CoperativeTelouet.Business.DTOs.Client"
+             x:Class="CoperativeTelouet.UI.Views.Vente.Devis.DevisListView"
+             x:DataType="vm:DevisListViewModel">
+
+  <Border Margin="16" Padding="16" Background="White" CornerRadius="8"
+          BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="12">
+      <DockPanel Grid.Row="0">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+          <Button Content="Filtrer par date"
+                  Command="{Binding ToggleDateFilterCommand}"
+                  Padding="16,8" />
+          <Button Content="Nouveau"
+                  Classes="accent"
+                  Command="{Binding NouveauCommand}"
+                  Padding="16,8" />
+        </StackPanel>
+        <TextBox Watermark="Recherche (n° ou client)"
+                 Text="{Binding SearchText}"
+                 Width="280"
+                 HorizontalAlignment="Left" />
+      </DockPanel>
+
+      <StackPanel Grid.Row="1"
+                  Orientation="Horizontal"
+                  Spacing="8"
+                  IsVisible="{Binding ShowDateFilter}">
+        <CalendarDatePicker SelectedDate="{Binding DateFrom}"
+                            Watermark="Du"
+                            Width="140" />
+        <CalendarDatePicker SelectedDate="{Binding DateTo}"
+                            Watermark="Au"
+                            Width="140" />
+        <Button Content="Appliquer"
+                Command="{Binding ApplyDateFilterCommand}"
+                Padding="12,6" />
+        <Button Content="Effacer"
+                Command="{Binding ClearDateFilterCommand}"
+                Padding="12,6" />
+      </StackPanel>
+
+      <DataGrid Grid.Row="2"
+                ItemsSource="{Binding PageItems}"
+                SelectedItem="{Binding SelectedItem}"
+                IsReadOnly="True"
+                AutoGenerateColumns="False"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                DoubleTapped="OnRowDoubleTapped">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="N°" Binding="{Binding Numero}" Width="140" />
+          <DataGridTextColumn Header="Client" Binding="{Binding ClientNom}" Width="*" />
+          <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd/MM/yyyy}" Width="110" />
+          <DataGridTextColumn Header="Validité" Binding="{Binding DateValidite, StringFormat=dd/MM/yyyy}" Width="110" />
+          <DataGridTextColumn Header="Total TTC" Binding="{Binding TotalTtc, StringFormat=N2}" Width="120" />
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <DockPanel Grid.Row="3">
+        <TextBlock Text="{Binding CountLabel}"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource BrandBlack}"
+                   Opacity="0.7" />
+        <StackPanel Orientation="Horizontal"
+                    Spacing="8"
+                    HorizontalAlignment="Center">
+          <Button Content="◀"
+                  Command="{Binding PreviousPageCommand}"
+                  IsEnabled="{Binding CanGoPrevious}"
+                  Padding="10,4" />
+          <TextBlock Text="{Binding PageLabel}"
+                     VerticalAlignment="Center"
+                     MinWidth="48"
+                     TextAlignment="Center" />
+          <Button Content="▶"
+                  Command="{Binding NextPageCommand}"
+                  IsEnabled="{Binding CanGoNext}"
+                  Padding="10,4" />
+        </StackPanel>
+      </DockPanel>
+
+      <TextBlock Grid.Row="4"
+                 Text="{Binding ErrorMessage}"
+                 Foreground="IndianRed"
+                 TextWrapping="Wrap"
+                 IsVisible="{Binding HasError}" />
+    </Grid>
+  </Border>
+</UserControl>

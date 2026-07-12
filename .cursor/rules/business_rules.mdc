@@ -94,6 +94,45 @@ var update = Mapper.Map<UpdateTiersDto>(dto) with { Actif = !dto.Actif };
 await UpdateAsync(id, update, ct);
 ```
 
+### Parent + children graphs (Create)
+
+For aggregates (devis + lignes, facture + lignes, …), **map the full create graph** in AutoMapper so specialized services can call inherited `CreateAsync` — do **not** ignore child collections on `Create*Dto → Entity` and then hand-attach lines beside `Repo.AddAsync`.
+
+- **Do** map `CreateDevisClientDto.Lignes` → `DevisClient.Lignes` (child map already ignores `Id` / FK / navigations).
+- **Do** prepare domain fields (`Numero`, `TotalTtc`, …) on the DTO, then `await CreateAsync(dto with { … })`.
+- **Don't** ignore `Lignes` on the create map just to re-map them manually in the service.
+- **Don't** call `Repo.AddAsync` from a specialized service when `CreateAsync` already does that after mapping.
+- Still **Ignore** reverse navigations and unrelated collections (`Client`, `BonsCommande`, `Factures`, …).
+- Entity → read DTO may still Ignore children if the service loads them separately (`GetDevisByIdAsync`).
+- **Update** of aggregates: load parent **with** children tracked (`GetByIdWithNavigationsAsync`), clear/replace the child collection (or map `Lignes` like create), then **one** `Repo.UpdateAsync` / `SaveChanges` — never update header then delete/add lines with multiple saves.
+
+```csharp
+// ✅ GOOD — create map includes Lignes; service uses CreateAsync
+CreateMap<CreateDevisClientDto, DevisClient>()
+    .ForMember(d => d.Id, o => o.Ignore())
+    .ForMember(d => d.Client, o => o.Ignore());
+// Lignes mapped via CreateDevisClientLigneDto → DevisClientLigne
+
+var created = await CreateAsync(dto with { Numero = numero, TotalTtc = ttc }, ct);
+
+// ✅ GOOD — update: one load with children, map graph, one save
+var entity = await Repo.GetByIdWithNavigationsAsync(id, [d => d.Lignes], ct)
+    ?? throw new KeyNotFoundException(...);
+entity.Lignes.Clear();
+Mapper.Map(toUpdate, entity);
+await Repo.UpdateAsync(entity, ct);
+
+// ❌ BAD — ignore children then duplicate Add
+.ForMember(d => d.Lignes, o => o.Ignore());
+entity.Lignes = dto.Lignes.Select(...).ToList();
+await Repo.AddAsync(entity, ct);
+
+// ❌ BAD — update header then delete/add lines with many SaveChanges
+await UpdateAsync(id, headerOnly);
+foreach (var line in existing) await _lignes.DeleteAsync(line.Id);
+foreach (var line in dto.Lignes) await _lignes.AddAsync(...);
+```
+
 ## Filtered reads from Business
 
 - Prefer `FindAsync(predicate)` (via GenericService or `Repo`) so SQL applies `WHERE`.
@@ -104,4 +143,4 @@ await UpdateAsync(id, update, ct);
 - One `AbstractValidator<T>` per Create/Update DTO; invoked from GenericService / services.
 - **ICE (Tiers):** optional (empty/null allowed). If provided, exactly **15** characters.
 
-**Rule of thumb:** GenericService for CRUD (never virtualize), custom methods for domain rules, AutoMapper for mapping, validators for input shape.
+**Rule of thumb:** GenericService for CRUD (never virtualize), map full create graphs for aggregates, custom methods for domain rules, AutoMapper for mapping, validators for input shape.

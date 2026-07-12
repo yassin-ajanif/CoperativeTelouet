@@ -16,14 +16,15 @@ public class ClientProfile : Profile
             .ForMember(d => d.Produit, o => o.Ignore())
             .ForMember(d => d.Service, o => o.Ignore());
         CreateMap<DevisClientCondition, DevisClientConditionDto>();
-        CreateMap<CreateDevisClientConditionDto, DevisClientCondition>();
+        CreateMap<CreateDevisClientConditionDto, DevisClientCondition>()
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.DevisClientId, o => o.Ignore())
+            .ForMember(d => d.DevisClient, o => o.Ignore());
         CreateMap<DevisClient, DevisClientDto>()
             .ForMember(d => d.Lignes, o => o.Ignore())
             .ForMember(d => d.Conditions, o => o.Ignore());
         CreateMap<CreateDevisClientDto, DevisClient>()
             .ForMember(d => d.Id, o => o.Ignore())
-            .ForMember(d => d.Lignes, o => o.Ignore())
-            .ForMember(d => d.Conditions, o => o.Ignore())
             .ForMember(d => d.Client, o => o.Ignore())
             .ForMember(d => d.BonsCommande, o => o.Ignore())
             .ForMember(d => d.BonsLivraison, o => o.Ignore())
@@ -31,12 +32,19 @@ public class ClientProfile : Profile
         CreateMap<UpdateDevisClientDto, DevisClient>()
             .ForMember(d => d.Id, o => o.Ignore())
             .ForMember(d => d.Numero, o => o.Ignore())
-            .ForMember(d => d.Lignes, o => o.Ignore())
             .ForMember(d => d.Conditions, o => o.Ignore())
             .ForMember(d => d.Client, o => o.Ignore())
             .ForMember(d => d.BonsCommande, o => o.Ignore())
             .ForMember(d => d.BonsLivraison, o => o.Ignore())
-            .ForMember(d => d.Factures, o => o.Ignore());
+            .ForMember(d => d.Factures, o => o.Ignore())
+            .AfterMap((_, entity) =>
+            {
+                foreach (var line in entity.Lignes)
+                {
+                    line.Id = 0;
+                    line.DevisClientId = entity.Id;
+                }
+            });
 
         CreateMap<BonCommandeClientLigne, BonCommandeClientLigneDto>();
         CreateMap<CreateBonCommandeClientLigneDto, BonCommandeClientLigne>();

@@ -8,7 +8,7 @@ public class CreateDevisClientDtoValidator : AbstractValidator<CreateDevisClient
     public CreateDevisClientDtoValidator()
     {
         RuleFor(x => x.Numero)
-            .NotEmpty().WithMessage("Le numéro est obligatoire.");
+            .MaximumLength(50).WithMessage("Le numéro est trop long.");
 
         RuleFor(x => x.ClientId)
             .GreaterThan(0).WithMessage("Le client est obligatoire.");

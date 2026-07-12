@@ -6,6 +6,10 @@ namespace CoperativeTelouet.DataAccess.Repositories;
 public interface IRepository<T> where T : BaseEntity
 {
     Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdWithNavigationsAsync(
+        int id,
+        Expression<Func<T, object>>[] includes,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     Task<(IReadOnlyList<TResult> Items, int TotalCount)> QueryPagedAsync<TResult>(
