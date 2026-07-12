@@ -18,6 +18,7 @@ using CoperativeTelouet.Business.Services.Stockage;
 using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.Domain.Entities;
 using CoperativeTelouet.Domain.Entities.Stockage;
+using CoperativeTelouet.Domain.Logging;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +32,9 @@ public static class DependencyInjection
     /// </summary>
     public static IServiceCollection AddBusiness(this IServiceCollection services, string connectionString)
     {
+        var logPath = FileErrorLogger.ResolvePathFromConnectionString(connectionString);
+        services.AddSingleton<IErrorLogger>(_ => new FileErrorLogger(logPath));
+
         services.AddDataAccess(connectionString);
         services.AddSingleton<IAppDatabaseInitializer, AppDatabaseInitializer>();
 

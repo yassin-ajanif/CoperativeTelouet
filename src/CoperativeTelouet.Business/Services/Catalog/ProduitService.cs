@@ -1,6 +1,7 @@
 using AutoMapper;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.DataAccess.Repositories;
+using CoperativeTelouet.Domain.Logging;
 using CoperativeTelouet.Domain.Entities;
 using FluentValidation;
 
@@ -14,8 +15,9 @@ public class ProduitService
         IRepository<Produit> produits,
         IMapper mapper,
         IEnumerable<IValidator<CreateProduitDto>> createValidators,
-        IEnumerable<IValidator<UpdateProduitDto>> updateValidators)
-        : base(produits, mapper, createValidators, updateValidators)
+        IEnumerable<IValidator<UpdateProduitDto>> updateValidators,
+        IErrorLogger logger)
+        : base(produits, mapper, createValidators, updateValidators, logger)
     {
     }
 

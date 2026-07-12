@@ -2,6 +2,7 @@ using AutoMapper;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.DataAccess.Repositories;
 using CoperativeTelouet.Domain.Common;
+using CoperativeTelouet.Domain.Logging;
 using FluentValidation;
 using System.Linq.Expressions;
 
@@ -15,62 +16,111 @@ public class GenericService<TEntity, TDto, TCreateDto, TUpdateDto>
     protected readonly IMapper Mapper;
     protected readonly IValidator<TCreateDto>? CreateValidator;
     protected readonly IValidator<TUpdateDto>? UpdateValidator;
+    protected readonly IErrorLogger Logger;
 
     public GenericService(
         IRepository<TEntity> repo,
         IMapper mapper,
         IEnumerable<IValidator<TCreateDto>> createValidators,
-        IEnumerable<IValidator<TUpdateDto>> updateValidators)
+        IEnumerable<IValidator<TUpdateDto>> updateValidators,
+        IErrorLogger logger)
     {
         Repo = repo;
         Mapper = mapper;
         CreateValidator = createValidators.FirstOrDefault();
         UpdateValidator = updateValidators.FirstOrDefault();
+        Logger = logger;
     }
 
-    public async Task<TDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var entity = await Repo.GetByIdAsync(id, cancellationToken);
-        return entity is null ? default : Mapper.Map<TDto>(entity);
-    }
+    public Task<TDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(GetByIdAsync), async () =>
+        {
+            var entity = await Repo.GetByIdAsync(id, cancellationToken);
+            return entity is null ? default : Mapper.Map<TDto>(entity);
+        });
 
-    public async Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken cancellationToken = default)
-        => Mapper.Map<IReadOnlyList<TDto>>(await Repo.GetAllAsync(cancellationToken));
+    public Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(GetAllAsync), async () =>
+            Mapper.Map<IReadOnlyList<TDto>>(await Repo.GetAllAsync(cancellationToken)));
 
-    public async Task<IReadOnlyList<TDto>> FindAsync(
+    public Task<IReadOnlyList<TDto>> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
-        => Mapper.Map<IReadOnlyList<TDto>>(await Repo.FindAsync(predicate, cancellationToken));
+        => RunLoggedAsync(nameof(FindAsync), async () =>
+            Mapper.Map<IReadOnlyList<TDto>>(await Repo.FindAsync(predicate, cancellationToken)));
 
-    public async Task<PagedResult<TResult>> QueryPagedAsync<TResult>(
+    public Task<PagedResult<TResult>> QueryPagedAsync<TResult>(
         Expression<Func<TEntity, bool>>? predicate,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
         Expression<Func<TEntity, TResult>> selector,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
-    {
-        var (items, totalCount) = await Repo.QueryPagedAsync(
-            predicate, orderBy, selector, page, pageSize, cancellationToken);
-        return new PagedResult<TResult>(items, totalCount);
-    }
+        => RunLoggedAsync(nameof(QueryPagedAsync), async () =>
+        {
+            var (items, totalCount) = await Repo.QueryPagedAsync(
+                predicate, orderBy, selector, page, pageSize, cancellationToken);
+            return new PagedResult<TResult>(items, totalCount);
+        });
 
-    public async Task<TDto> CreateAsync(TCreateDto dto, CancellationToken cancellationToken = default)
-    {
-        await ValidateAsync(CreateValidator, dto, cancellationToken);
-        return Mapper.Map<TDto>(await Repo.AddAsync(Mapper.Map<TEntity>(dto), cancellationToken));
-    }
+    public Task<TDto> CreateAsync(TCreateDto dto, CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(CreateAsync), async () =>
+        {
+            await ValidateAsync(CreateValidator, dto, cancellationToken);
+            return Mapper.Map<TDto>(await Repo.AddAsync(Mapper.Map<TEntity>(dto), cancellationToken));
+        });
 
-    public async Task UpdateAsync(int id, TUpdateDto dto, CancellationToken cancellationToken = default)
-    {
-        await ValidateAsync(UpdateValidator, dto, cancellationToken);
-        var entity = await Repo.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException();
-        Mapper.Map(dto, entity);
-        await Repo.UpdateAsync(entity, cancellationToken);
-    }
+    public Task UpdateAsync(int id, TUpdateDto dto, CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(UpdateAsync), async () =>
+        {
+            await ValidateAsync(UpdateValidator, dto, cancellationToken);
+            var entity = await Repo.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException();
+            Mapper.Map(dto, entity);
+            await Repo.UpdateAsync(entity, cancellationToken);
+        });
 
     public Task DeleteAsync(int id, CancellationToken cancellationToken = default)
-        => Repo.DeleteAsync(id, cancellationToken);
+        => RunLoggedAsync(nameof(DeleteAsync), () => Repo.DeleteAsync(id, cancellationToken));
+
+    protected Task<TResult> RunLoggedAsync<TResult>(string operation, Func<Task<TResult>> action)
+        => ExecuteLoggedAsync($"{typeof(TEntity).Name}.{operation}", action);
+
+    protected Task RunLoggedAsync(string operation, Func<Task> action)
+        => ExecuteLoggedAsync($"{typeof(TEntity).Name}.{operation}", action);
+
+    private async Task<TResult> ExecuteLoggedAsync<TResult>(string context, Func<Task<TResult>> action)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, AppLayer.Business, context);
+            throw;
+        }
+    }
+
+    private async Task ExecuteLoggedAsync(string context, Func<Task> action)
+    {
+        try
+        {
+            await action();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, AppLayer.Business, context);
+            throw;
+        }
+    }
 
     protected static async Task ValidateAsync<T>(
         IValidator<T>? validator,

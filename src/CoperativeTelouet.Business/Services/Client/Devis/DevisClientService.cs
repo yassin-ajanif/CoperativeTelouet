@@ -3,6 +3,7 @@ using AutoMapper;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.Business.DTOs.Client;
 using CoperativeTelouet.DataAccess.Repositories;
+using CoperativeTelouet.Domain.Logging;
 using CoperativeTelouet.Domain.Entities;
 using CoperativeTelouet.Domain.Entities.Client;
 using CoperativeTelouet.Domain.Enums;
@@ -25,8 +26,9 @@ public class DevisClientService
         IArticleSuggestionService articles,
         IMapper mapper,
         IEnumerable<IValidator<CreateDevisClientDto>> createValidators,
-        IEnumerable<IValidator<UpdateDevisClientDto>> updateValidators)
-        : base(devis, mapper, createValidators, updateValidators)
+        IEnumerable<IValidator<UpdateDevisClientDto>> updateValidators,
+        IErrorLogger logger)
+        : base(devis, mapper, createValidators, updateValidators, logger)
     {
         _lignes = lignes;
         _tiers = tiers;
@@ -40,113 +42,119 @@ public class DevisClientService
         int page = 1,
         int pageSize = 15,
         CancellationToken cancellationToken = default)
-    {
-        var q = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
-        var from = dateFrom?.Date;
-        var toExclusive = dateTo?.Date.AddDays(1);
-
-        return QueryPagedAsync(
-            d => (from == null || d.Date >= from)
-                 && (toExclusive == null || d.Date < toExclusive)
-                 && (q == null
-                     || d.Numero.Contains(q)
-                     || d.Client.Nom.Contains(q)),
-            query => query.OrderByDescending(d => d.Date).ThenByDescending(d => d.Id),
-            d => new DevisClientListItemDto(
-                d.Id,
-                d.Numero,
-                d.ClientId,
-                d.Client.Nom,
-                d.Date,
-                d.DateValidite,
-                d.TotalTtc,
-                d.Note),
-            page,
-            pageSize,
-            cancellationToken);
-    }
-
-    public async Task<DevisClientDto?> GetDevisByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var dto = await GetByIdAsync(id, cancellationToken);
-        if (dto is null)
-            return null;
-
-        var lignes = await _lignes.FindAsync(l => l.DevisClientId == id, cancellationToken);
-        return dto with
+        => RunLoggedAsync(nameof(GetDevisAsync), () =>
         {
-            Lignes = lignes.Select(l => Mapper.Map<DevisClientLigneDto>(l)).ToList(),
-            Conditions = [],
-        };
-    }
+            var q = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
+            var from = dateFrom?.Date;
+            var toExclusive = dateTo?.Date.AddDays(1);
 
-    public async Task<DevisClientDto> CreateDevisAsync(
+            return QueryPagedAsync(
+                d => (from == null || d.Date >= from)
+                     && (toExclusive == null || d.Date < toExclusive)
+                     && (q == null
+                         || d.Numero.Contains(q)
+                         || d.Client.Nom.Contains(q)),
+                query => query.OrderByDescending(d => d.Date).ThenByDescending(d => d.Id),
+                d => new DevisClientListItemDto(
+                    d.Id,
+                    d.Numero,
+                    d.ClientId,
+                    d.Client.Nom,
+                    d.Date,
+                    d.DateValidite,
+                    d.TotalTtc,
+                    d.Note),
+                page,
+                pageSize,
+                cancellationToken);
+        });
+
+    public Task<DevisClientDto?> GetDevisByIdAsync(int id, CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(GetDevisByIdAsync), async () =>
+        {
+            var dto = await GetByIdAsync(id, cancellationToken);
+            if (dto is null)
+                return null;
+
+            var lignes = await _lignes.FindAsync(l => l.DevisClientId == id, cancellationToken);
+            return dto with
+            {
+                Lignes = lignes.Select(l => Mapper.Map<DevisClientLigneDto>(l)).ToList(),
+                Conditions = [],
+            };
+        });
+
+    public Task<DevisClientDto> CreateDevisAsync(
         CreateDevisClientDto dto,
         CancellationToken cancellationToken = default)
-    {
-        await EnsureClientExistsAsync(dto.ClientId, cancellationToken);
+        => RunLoggedAsync(nameof(CreateDevisAsync), async () =>
+        {
+            await EnsureClientExistsAsync(dto.ClientId, cancellationToken);
 
-        var numero = string.IsNullOrWhiteSpace(dto.Numero)
-            ? await GenerateNumeroAsync(cancellationToken)
-            : dto.Numero.Trim();
+            var numero = string.IsNullOrWhiteSpace(dto.Numero)
+                ? await GenerateNumeroAsync(cancellationToken)
+                : dto.Numero.Trim();
 
-        var (_, _, ttc) = IDevisClientService.ComputeTotals(dto.Lignes, dto.RemiseGlobale);
-        var created = await CreateAsync(
-            dto with
-            {
-                Numero = numero,
-                TotalTtc = ttc,
-                Conditions = null,
-            },
-            cancellationToken);
+            var (_, _, ttc) = IDevisClientService.ComputeTotals(dto.Lignes, dto.RemiseGlobale);
+            var created = await CreateAsync(
+                dto with
+                {
+                    Numero = numero,
+                    TotalTtc = ttc,
+                    Conditions = null,
+                },
+                cancellationToken);
 
-        return (await GetDevisByIdAsync(created.Id, cancellationToken))!;
-    }
+            return (await GetDevisByIdAsync(created.Id, cancellationToken))!;
+        });
 
-    public async Task UpdateDevisAsync(
+    public Task UpdateDevisAsync(
         int id,
         UpdateDevisClientDto dto,
         CancellationToken cancellationToken = default)
-    {
-        await EnsureClientExistsAsync(dto.ClientId, cancellationToken);
+        => RunLoggedAsync(nameof(UpdateDevisAsync), async () =>
+        {
+            await EnsureClientExistsAsync(dto.ClientId, cancellationToken);
 
-        var (_, _, ttc) = IDevisClientService.ComputeTotals(dto.Lignes, dto.RemiseGlobale);
-        var toUpdate = dto with { TotalTtc = ttc };
-        await ValidateAsync(UpdateValidator, toUpdate, cancellationToken);
+            var (_, _, ttc) = IDevisClientService.ComputeTotals(dto.Lignes, dto.RemiseGlobale);
+            var toUpdate = dto with { TotalTtc = ttc };
+            await ValidateAsync(UpdateValidator, toUpdate, cancellationToken);
 
-        var entity = await Repo.GetByIdWithNavigationsAsync(
-                id,
-                [d => d.Lignes],
-                cancellationToken)
-            ?? throw new KeyNotFoundException($"Devis {id} introuvable.");
+            var entity = await Repo.GetByIdWithNavigationsAsync(
+                    id,
+                    [d => d.Lignes],
+                    cancellationToken)
+                ?? throw new KeyNotFoundException($"Devis {id} introuvable.");
 
-        entity.Lignes.Clear();
-        Mapper.Map(toUpdate, entity);
+            entity.Lignes.Clear();
+            Mapper.Map(toUpdate, entity);
 
-        await Repo.UpdateAsync(entity, cancellationToken);
-    }
+            await Repo.UpdateAsync(entity, cancellationToken);
+        });
 
-    public async Task<string> GenerateNumeroAsync(CancellationToken cancellationToken = default)
-    {
-        var year = DateTime.Today.Year;
-        var prefix = $"DEV-{year}-";
-        var existing = await FindAsync(d => d.Numero.StartsWith(prefix), cancellationToken);
-        var next = existing
-            .Select(d =>
-            {
-                var tail = d.Numero[prefix.Length..];
-                return int.TryParse(tail, out var n) ? n : 0;
-            })
-            .DefaultIfEmpty(0)
-            .Max() + 1;
+    public Task<string> GenerateNumeroAsync(CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(GenerateNumeroAsync), async () =>
+        {
+            var year = DateTime.Today.Year;
+            var prefix = $"DEV-{year}-";
+            var existing = await FindAsync(d => d.Numero.StartsWith(prefix), cancellationToken);
+            var next = existing
+                .Select(d =>
+                {
+                    var tail = d.Numero[prefix.Length..];
+                    return int.TryParse(tail, out var n) ? n : 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max() + 1;
 
-        return $"{prefix}{next:D4}";
-    }
+            return $"{prefix}{next:D4}";
+        });
 
     public Task<IReadOnlyList<ArticleSuggestionDto>> SearchArticlesAsync(
         string? search,
-        CancellationToken cancellationToken = default) =>
-        _articles.SearchArticlesAsync(search, cancellationToken);
+        CancellationToken cancellationToken = default)
+        => RunLoggedAsync(nameof(SearchArticlesAsync), () =>
+            _articles.SearchArticlesAsync(search, cancellationToken));
 
     private async Task EnsureClientExistsAsync(int clientId, CancellationToken cancellationToken)
     {

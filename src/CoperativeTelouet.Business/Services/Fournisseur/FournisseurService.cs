@@ -1,6 +1,7 @@
 using AutoMapper;
 using CoperativeTelouet.Business.DTOs;
 using CoperativeTelouet.DataAccess.Repositories;
+using CoperativeTelouet.Domain.Logging;
 using CoperativeTelouet.Domain.Entities;
 using CoperativeTelouet.Domain.Entities.Fournisseur;
 using CoperativeTelouet.Domain.Enums;
@@ -23,8 +24,9 @@ public class FournisseurService
         IRepository<AvoirFournisseur> avoirs,
         IMapper mapper,
         IEnumerable<IValidator<CreateTiersDto>> createValidators,
-        IEnumerable<IValidator<UpdateTiersDto>> updateValidators)
-        : base(tiers, mapper, createValidators, updateValidators)
+        IEnumerable<IValidator<UpdateTiersDto>> updateValidators,
+        IErrorLogger logger)
+        : base(tiers, mapper, createValidators, updateValidators, logger)
     {
         _factures = factures;
         _paiements = paiements;

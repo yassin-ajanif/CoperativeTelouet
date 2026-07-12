@@ -36,6 +36,24 @@ public partial class App : Application
     public override async void OnFrameworkInitializationCompleted()
     {
         _services = BuildServiceProvider();
+
+        var logger = _services.GetRequiredService<CoperativeTelouet.Domain.Logging.IErrorLogger>();
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception ex)
+                logger.LogError(ex, CoperativeTelouet.Domain.Logging.AppLayer.Ui, "AppDomain.UnhandledException");
+            else
+                logger.LogError(
+                    new Exception(e.ExceptionObject?.ToString() ?? "Unknown"),
+                    CoperativeTelouet.Domain.Logging.AppLayer.Ui,
+                    "AppDomain.UnhandledException");
+        };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            logger.LogError(e.Exception, CoperativeTelouet.Domain.Logging.AppLayer.Ui, "TaskScheduler.UnobservedTaskException");
+            e.SetObserved();
+        };
+
         await _services.GetRequiredService<IAppDatabaseInitializer>().InitializeAsync();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

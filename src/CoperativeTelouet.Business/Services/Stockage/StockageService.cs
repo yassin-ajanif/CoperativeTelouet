@@ -1,6 +1,7 @@
 using AutoMapper;
 using CoperativeTelouet.Business.DTOs.Stockage;
 using CoperativeTelouet.DataAccess.Repositories;
+using CoperativeTelouet.Domain.Logging;
 using CoperativeTelouet.Domain.Entities.Stockage;
 using FluentValidation;
 
@@ -13,8 +14,9 @@ public class StockageService
         IRepository<BonEntreeStockage> repo,
         IMapper mapper,
         IEnumerable<IValidator<CreateBonEntreeStockageDto>> createValidators,
-        IEnumerable<IValidator<UpdateBonEntreeStockageDto>> updateValidators)
-        : base(repo, mapper, createValidators, updateValidators)
+        IEnumerable<IValidator<UpdateBonEntreeStockageDto>> updateValidators,
+        IErrorLogger logger)
+        : base(repo, mapper, createValidators, updateValidators, logger)
     {
     }
 
