@@ -1,91 +1,140 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CoperativeTelouet.Business.DTOs;
+using CoperativeTelouet.Business.Services.Stockage;
+using CoperativeTelouet.UI.Services;
+using FluentValidation;
 
 namespace CoperativeTelouet.UI.ViewModels.Stockage;
 
 public partial class VarietesPommeViewModel : ViewModelBase
 {
-    private int _nextId = 5;
+    private readonly IVarietePommeService _service;
+    private readonly IUserDialogService _dialogs;
 
     [ObservableProperty]
-    private ObservableCollection<VarietePommeItemViewModel> _items = [];
+    private ObservableCollection<VarietePommeDto> _items = [];
 
     [ObservableProperty]
-    private VarietePommeItemViewModel? _selectedItem;
+    private VarietePommeDto? _selectedItem;
 
     [ObservableProperty]
     private string _nom = string.Empty;
 
     [ObservableProperty]
-    private string _statusHint = "Données mock — Business à brancher plus tard.";
+    private string? _errorMessage;
 
-    public VarietesPommeViewModel()
+    [ObservableProperty]
+    private bool _isBusy;
+
+    public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    public VarietesPommeViewModel(IVarietePommeService service, IUserDialogService dialogs)
     {
-        LoadMockData();
+        _service = service;
+        _dialogs = dialogs;
+        _ = LoadAsync();
     }
 
-    private void LoadMockData()
-    {
-        Items = new ObservableCollection<VarietePommeItemViewModel>
-        {
-            new() { Id = 1, Nom = "Golden" },
-            new() { Id = 2, Nom = "Gala" },
-            new() { Id = 3, Nom = "Starking" },
-            new() { Id = 4, Nom = "Granny Smith" },
-        };
-    }
+    partial void OnErrorMessageChanged(string? value) => OnPropertyChanged(nameof(HasError));
 
-    partial void OnSelectedItemChanged(VarietePommeItemViewModel? value) =>
+    partial void OnSelectedItemChanged(VarietePommeDto? value)
+    {
         Nom = value?.Nom ?? string.Empty;
+        ErrorMessage = null;
+    }
+
+    [RelayCommand]
+    private async Task LoadAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = null;
+            var list = await _service.GetVarietesAsync();
+            Items = new ObservableCollection<VarietePommeDto>(list);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
 
     [RelayCommand]
     private void Nouveau()
     {
         SelectedItem = null;
         Nom = string.Empty;
-        StatusHint = "Nouvelle variété — saisir puis Enregistrer (mock).";
+        ErrorMessage = null;
     }
 
     [RelayCommand]
-    private void Enregistrer()
+    private async Task EnregistrerAsync()
     {
-        if (string.IsNullOrWhiteSpace(Nom))
+        try
         {
-            StatusHint = "Le nom est obligatoire.";
-            return;
-        }
+            IsBusy = true;
+            ErrorMessage = null;
 
-        if (SelectedItem is null)
-        {
-            var item = new VarietePommeItemViewModel
+            if (SelectedItem is null)
             {
-                Id = _nextId++,
-                Nom = Nom.Trim()
-            };
-            Items.Add(item);
-            SelectedItem = item;
-            StatusHint = "Variété ajoutée (mock).";
+                await _service.CreateVarieteAsync(new CreateVarietePommeDto(Nom.Trim()));
+            }
+            else
+            {
+                await _service.UpdateVarieteAsync(SelectedItem.Id, new UpdateVarietePommeDto(Nom.Trim()));
+            }
+
+            await LoadAsync();
+            Nouveau();
+            await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
         }
-        else
+        catch (ValidationException ex)
         {
-            SelectedItem.Nom = Nom.Trim();
-            StatusHint = "Variété mise à jour (mock).";
+            var msg = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            ErrorMessage = msg;
+            await _dialogs.ShowErrorAsync(msg);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
     [RelayCommand]
-    private void Supprimer()
+    private async Task SupprimerAsync()
     {
         if (SelectedItem is null)
-        {
-            StatusHint = "Sélectionnez une variété.";
             return;
-        }
 
-        Items.Remove(SelectedItem);
-        SelectedItem = null;
-        Nom = string.Empty;
-        StatusHint = "Variété supprimée (mock).";
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = null;
+            await _service.DeleteVarieteAsync(SelectedItem.Id);
+            await LoadAsync();
+            Nouveau();
+            await _dialogs.ShowSuccessAsync("Suppression réussie.");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

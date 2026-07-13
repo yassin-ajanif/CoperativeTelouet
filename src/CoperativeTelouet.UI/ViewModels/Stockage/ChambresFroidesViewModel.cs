@@ -1,18 +1,23 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CoperativeTelouet.Business.DTOs;
+using CoperativeTelouet.Business.Services.Stockage;
+using CoperativeTelouet.UI.Services;
+using FluentValidation;
 
 namespace CoperativeTelouet.UI.ViewModels.Stockage;
 
 public partial class ChambresFroidesViewModel : ViewModelBase
 {
-    private int _nextId = 4;
+    private readonly IChambreFroideService _service;
+    private readonly IUserDialogService _dialogs;
 
     [ObservableProperty]
-    private ObservableCollection<ChambreFroideItemViewModel> _items = [];
+    private ObservableCollection<ChambreFroideDto> _items = [];
 
     [ObservableProperty]
-    private ChambreFroideItemViewModel? _selectedItem;
+    private ChambreFroideDto? _selectedItem;
 
     [ObservableProperty]
     private string _nom = string.Empty;
@@ -24,28 +29,49 @@ public partial class ChambresFroidesViewModel : ViewModelBase
     private bool _actif = true;
 
     [ObservableProperty]
-    private string _statusHint = "Données mock — Business à brancher plus tard.";
+    private string? _errorMessage;
 
-    public ChambresFroidesViewModel()
+    [ObservableProperty]
+    private bool _isBusy;
+
+    public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    public ChambresFroidesViewModel(IChambreFroideService service, IUserDialogService dialogs)
     {
-        LoadMockData();
+        _service = service;
+        _dialogs = dialogs;
+        _ = LoadAsync();
     }
 
-    private void LoadMockData()
-    {
-        Items = new ObservableCollection<ChambreFroideItemViewModel>
-        {
-            new() { Id = 1, Nom = "CF-1 Nord", CapaciteBacs = 200, Actif = true },
-            new() { Id = 2, Nom = "CF-2 Sud", CapaciteBacs = 200, Actif = true },
-            new() { Id = 3, Nom = "CF-3 Est", CapaciteBacs = 200, Actif = true },
-        };
-    }
+    partial void OnErrorMessageChanged(string? value) => OnPropertyChanged(nameof(HasError));
 
-    partial void OnSelectedItemChanged(ChambreFroideItemViewModel? value)
+    partial void OnSelectedItemChanged(ChambreFroideDto? value)
     {
         Nom = value?.Nom ?? string.Empty;
         CapaciteText = value?.CapaciteBacs.ToString() ?? "200";
         Actif = value?.Actif ?? true;
+        ErrorMessage = null;
+    }
+
+    [RelayCommand]
+    private async Task LoadAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = null;
+            var list = await _service.GetChambresAsync();
+            Items = new ObservableCollection<ChambreFroideDto>(list);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
@@ -55,60 +81,79 @@ public partial class ChambresFroidesViewModel : ViewModelBase
         Nom = string.Empty;
         CapaciteText = "200";
         Actif = true;
-        StatusHint = "Nouvelle chambre — saisir puis Enregistrer (mock).";
+        ErrorMessage = null;
     }
 
     [RelayCommand]
-    private void Enregistrer()
+    private async Task EnregistrerAsync()
     {
-        if (string.IsNullOrWhiteSpace(Nom))
+        try
         {
-            StatusHint = "Le nom est obligatoire.";
-            return;
-        }
+            IsBusy = true;
+            ErrorMessage = null;
 
-        if (!int.TryParse(CapaciteText, out var capacite) || capacite <= 0)
-        {
-            StatusHint = "Capacité invalide.";
-            return;
-        }
-
-        if (SelectedItem is null)
-        {
-            var item = new ChambreFroideItemViewModel
+            if (!int.TryParse(CapaciteText, out var capacite))
             {
-                Id = _nextId++,
-                Nom = Nom.Trim(),
-                CapaciteBacs = capacite,
-                Actif = Actif
-            };
-            Items.Add(item);
-            SelectedItem = item;
-            StatusHint = "Chambre ajoutée (mock).";
+                ErrorMessage = "Capacité invalide.";
+                await _dialogs.ShowErrorAsync(ErrorMessage);
+                return;
+            }
+
+            if (SelectedItem is null)
+            {
+                await _service.CreateChambreAsync(new CreateChambreFroideDto(Nom.Trim(), capacite, Actif));
+            }
+            else
+            {
+                await _service.UpdateChambreAsync(
+                    SelectedItem.Id,
+                    new UpdateChambreFroideDto(Nom.Trim(), capacite, Actif));
+            }
+
+            await LoadAsync();
+            Nouveau();
+            await _dialogs.ShowSuccessAsync("Enregistrement réussi.");
         }
-        else
+        catch (ValidationException ex)
         {
-            SelectedItem.Nom = Nom.Trim();
-            SelectedItem.CapaciteBacs = capacite;
-            SelectedItem.Actif = Actif;
-            StatusHint = "Chambre mise à jour (mock).";
+            var msg = string.Join(Environment.NewLine, ex.Errors.Select(e => e.ErrorMessage));
+            ErrorMessage = msg;
+            await _dialogs.ShowErrorAsync(msg);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
     [RelayCommand]
-    private void Supprimer()
+    private async Task SupprimerAsync()
     {
         if (SelectedItem is null)
-        {
-            StatusHint = "Sélectionnez une chambre.";
             return;
-        }
 
-        Items.Remove(SelectedItem);
-        SelectedItem = null;
-        Nom = string.Empty;
-        CapaciteText = "200";
-        Actif = true;
-        StatusHint = "Chambre supprimée (mock).";
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = null;
+            await _service.DeleteChambreAsync(SelectedItem.Id);
+            await LoadAsync();
+            Nouveau();
+            await _dialogs.ShowSuccessAsync("Suppression réussie.");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            await _dialogs.ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

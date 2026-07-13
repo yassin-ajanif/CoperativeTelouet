@@ -1,11 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CoperativeTelouet.UI.ViewModels.Stockage"
+             xmlns:conv="using:CoperativeTelouet.UI.Converters"
              x:Class="CoperativeTelouet.UI.Views.Stockage.ChambresFroidesView"
              x:DataType="vm:ChambresFroidesViewModel">
   <Grid Margin="16" RowDefinitions="Auto,*,Auto" RowSpacing="12">
     <DockPanel Grid.Row="0">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+        <Button Content="Actualiser" Command="{Binding LoadCommand}" Padding="16,8" />
         <Button Content="Nouveau" Command="{Binding NouveauCommand}" Padding="16,8" />
       </StackPanel>
       <StackPanel Spacing="4">
@@ -30,7 +32,9 @@
             <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=OneWay}" Width="50" />
             <DataGridTextColumn Header="Nom" Binding="{Binding Nom, Mode=OneWay}" Width="*" />
             <DataGridTextColumn Header="Capacité" Binding="{Binding CapaciteBacs, Mode=OneWay}" Width="100" />
-            <DataGridTextColumn Header="Actif" Binding="{Binding ActifLabel, Mode=OneWay}" Width="80" />
+            <DataGridTextColumn Header="Actif"
+                               Binding="{Binding Actif, Mode=OneWay, Converter={x:Static conv:ActifToTextConverter.Instance}}"
+                               Width="80" />
           </DataGrid.Columns>
         </DataGrid>
       </Border>
@@ -54,8 +58,9 @@
     </Grid>
 
     <TextBlock Grid.Row="2"
-               Text="{Binding StatusHint}"
-               Opacity="0.55"
-               FontSize="12" />
+               Text="{Binding ErrorMessage}"
+               Foreground="IndianRed"
+               TextWrapping="Wrap"
+               IsVisible="{Binding HasError}" />
   </Grid>
 </UserControl>

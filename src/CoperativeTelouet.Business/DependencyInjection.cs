@@ -17,7 +17,6 @@ using CoperativeTelouet.Business.Services.Fournisseur.Facture;
 using CoperativeTelouet.Business.Services.Stockage;
 using CoperativeTelouet.DataAccess;
 using CoperativeTelouet.Domain.Entities;
-using CoperativeTelouet.Domain.Entities.Stockage;
 using CoperativeTelouet.Domain.Logging;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,16 +42,8 @@ public static class DependencyInjection
 
         // simple catalog entities: register the closed generic service (no subclass needed)
         services.AddScoped<
-            IGenericService<VarietePomme, VarietePommeDto, CreateVarietePommeDto, UpdateVarietePommeDto>,
-            GenericService<VarietePomme, VarietePommeDto, CreateVarietePommeDto, UpdateVarietePommeDto>>();
-
-        services.AddScoped<
             IGenericService<Categorie, CategorieDto, CreateCategorieDto, UpdateCategorieDto>,
             GenericService<Categorie, CategorieDto, CreateCategorieDto, UpdateCategorieDto>>();
-
-        services.AddScoped<
-            IGenericService<ChambreFroide, ChambreFroideDto, CreateChambreFroideDto, UpdateChambreFroideDto>,
-            GenericService<ChambreFroide, ChambreFroideDto, CreateChambreFroideDto, UpdateChambreFroideDto>>();
 
         services.AddScoped<
             IGenericService<TypeCharge, TypeChargeDto, CreateTypeChargeDto, UpdateTypeChargeDto>,
@@ -72,6 +63,8 @@ public static class DependencyInjection
 
         // entities with custom logic: register the concrete service
         services.AddScoped<StockageService>();
+        services.AddScoped<IChambreFroideService, ChambreFroideService>();
+        services.AddScoped<IVarietePommeService, VarietePommeService>();
         services.AddScoped<IProduitService, ProduitService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IFournisseurService, FournisseurService>();
