@@ -99,6 +99,7 @@ public partial class App : Application
         services.AddTransient<AccueilViewModel>();
         services.AddTransient<CategoriesViewModel>();
         services.AddTransient<ProduitsViewModel>();
+        services.AddTransient<ServicesViewModel>();
         services.AddTransient<ClientsViewModel>();
         services.AddTransient<ClientsListViewModel>();
         services.AddTransient<ClientDetailViewModel>();

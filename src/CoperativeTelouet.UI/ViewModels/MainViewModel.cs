@@ -43,6 +43,7 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsAvoirFournisseurSelected))]
     [NotifyPropertyChangedFor(nameof(IsCategoriesSelected))]
     [NotifyPropertyChangedFor(nameof(IsProduitsSelected))]
+    [NotifyPropertyChangedFor(nameof(IsServicesSelected))]
     [NotifyPropertyChangedFor(nameof(IsStockageDashboardSelected))]
     [NotifyPropertyChangedFor(nameof(IsBonsEntreeSelected))]
     [NotifyPropertyChangedFor(nameof(IsBonsSortieSelected))]
@@ -81,6 +82,7 @@ public partial class MainViewModel : ViewModelBase
     public bool IsAvoirFournisseurSelected => SelectedNav == "AvoirFournisseur";
     public bool IsCategoriesSelected => SelectedNav == "Categories";
     public bool IsProduitsSelected => SelectedNav == "Produits";
+    public bool IsServicesSelected => SelectedNav == "Services";
     public bool IsStockageDashboardSelected => SelectedNav == "StockageDashboard";
     public bool IsBonsEntreeSelected => SelectedNav == "BonsEntree";
     public bool IsBonsSortieSelected => SelectedNav == "BonsSortie";
@@ -286,6 +288,15 @@ public partial class MainViewModel : ViewModelBase
         CurrentPage = _services.GetRequiredService<ProduitsViewModel>();
         SelectedNav = "Produits";
         StatusMessage = "Catalogue · Produits";
+        IsCatalogueExpanded = true;
+    }
+
+    [RelayCommand]
+    private void NavigateToServices()
+    {
+        CurrentPage = _services.GetRequiredService<ServicesViewModel>();
+        SelectedNav = "Services";
+        StatusMessage = "Catalogue · Services";
         IsCatalogueExpanded = true;
     }
 }

@@ -1,0 +1,151 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CoperativeTelouet.UI.ViewModels"
+             xmlns:conv="using:CoperativeTelouet.UI.Converters"
+             x:Class="CoperativeTelouet.UI.Views.ServicesView"
+             x:DataType="vm:ServicesViewModel">
+
+  <Grid ColumnDefinitions="*,1.2*" ColumnSpacing="16" Margin="16" RowDefinitions="*">
+    <Border Grid.Column="0"
+            Padding="16"
+            Background="White"
+            CornerRadius="8"
+            BorderBrush="{DynamicResource BrandBorder}"
+            BorderThickness="1">
+      <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto" RowSpacing="10">
+        <Button Content="Nouveau service"
+                Classes="accent"
+                Command="{Binding NouveauCommand}"
+                Padding="14,8"
+                HorizontalAlignment="Left" />
+
+        <TextBlock Grid.Row="1"
+                   Text="« Nouveau service » ouvre une fiche brouillon : rien n'est enregistré tant que vous n'avez pas cliqué « Enregistrer la fiche »."
+                   TextWrapping="Wrap"
+                   Opacity="0.7"
+                   FontSize="12" />
+
+        <TextBox Grid.Row="2"
+                 Watermark="Rechercher : réf. ou désignation..."
+                 Text="{Binding SearchText}" />
+
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding PageItems}"
+                  SelectedItem="{Binding SelectedItem}"
+                  IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Réf." Binding="{Binding Reference, Mode=OneWay}" Width="120" />
+            <DataGridTextColumn Header="Désignation" Binding="{Binding Designation, Mode=OneWay}" Width="*" />
+            <DataGridTextColumn Header="Prix HT"
+                               Binding="{Binding PrixVenteHT, Mode=OneWay, StringFormat=N2}"
+                               Width="100" />
+            <DataGridTextColumn Header="Actif"
+                               Binding="{Binding Actif, Mode=OneWay, Converter={x:Static conv:ActifToTextConverter.Instance}}"
+                               Width="80" />
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel Grid.Row="4">
+          <TextBlock Text="{Binding CountLabel}"
+                     VerticalAlignment="Center"
+                     Opacity="0.7" />
+          <StackPanel Orientation="Horizontal"
+                      Spacing="8"
+                      HorizontalAlignment="Center">
+            <Button Content="◀"
+                    Command="{Binding PreviousPageCommand}"
+                    IsEnabled="{Binding CanGoPrevious}"
+                    Padding="10,4" />
+            <TextBlock Text="{Binding PageLabel}"
+                       VerticalAlignment="Center"
+                       MinWidth="48"
+                       TextAlignment="Center" />
+            <Button Content="▶"
+                    Command="{Binding NextPageCommand}"
+                    IsEnabled="{Binding CanGoNext}"
+                    Padding="10,4" />
+          </StackPanel>
+        </DockPanel>
+
+        <TextBlock Grid.Row="5"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="IndianRed"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding HasError}" />
+      </Grid>
+    </Border>
+
+    <Border Grid.Column="1"
+            Padding="16"
+            Background="White"
+            CornerRadius="8"
+            BorderBrush="{DynamicResource BrandBorder}"
+            BorderThickness="1">
+      <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+        <TextBlock Text="{Binding FicheTitle}"
+                   FontWeight="SemiBold"
+                   FontSize="16" />
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+              <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4">
+                <TextBlock Text="Référence" Opacity="0.7" FontSize="12" />
+                <TextBox Text="{Binding Reference}" Watermark="Ex. SRV-001" />
+              </StackPanel>
+              <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4">
+                <TextBlock Text="Désignation" Opacity="0.7" FontSize="12" />
+                <TextBox Text="{Binding Designation}" Watermark="Libellé" />
+              </StackPanel>
+
+              <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4">
+                <TextBlock Text="Unité" Opacity="0.7" FontSize="12" />
+                <TextBox Text="{Binding Unite}" Watermark="U" Width="80" HorizontalAlignment="Left" />
+              </StackPanel>
+              <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4">
+                <TextBlock Text="TVA %" Opacity="0.7" FontSize="12" />
+                <NumericUpDown Value="{Binding TauxTva}" FormatString="N2" Minimum="0" Increment="0.01" />
+              </StackPanel>
+
+              <StackPanel Grid.Row="2" Grid.Column="0" Spacing="4">
+                <TextBlock Text="Prix vente HT" Opacity="0.7" FontSize="12" />
+                <NumericUpDown Value="{Binding PrixVenteHt}" FormatString="N2" Minimum="0" Increment="0.01" />
+              </StackPanel>
+              <StackPanel Grid.Row="2" Grid.Column="1" Spacing="4">
+                <TextBlock Text="Prix vente TTC" Opacity="0.7" FontSize="12" />
+                <NumericUpDown Value="{Binding PrixVenteTtc}" FormatString="N2" Minimum="0" Increment="0.01" />
+              </StackPanel>
+
+              <StackPanel Grid.Row="3" Grid.Column="0" Spacing="4">
+                <TextBlock Text="Coût HT" Opacity="0.7" FontSize="12" />
+                <NumericUpDown Value="{Binding CoutHt}" FormatString="N2" Minimum="0" Increment="0.01" />
+              </StackPanel>
+
+              <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                <TextBlock Text="Note" Opacity="0.7" FontSize="12" />
+                <TextBox Text="{Binding Note}" AcceptsReturn="True" Height="60" TextWrapping="Wrap" />
+              </StackPanel>
+            </Grid>
+
+            <CheckBox Content="Service actif (visible dans les documents)"
+                      IsChecked="{Binding Actif}"
+                      Margin="0,4,0,0" />
+          </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
+          <Button Content="Enregistrer la fiche"
+                  Classes="accent-green"
+                  Command="{Binding SaveCommand}"
+                  Padding="16,8" />
+          <Button Content="Supprimer le service"
+                  Command="{Binding DeleteCommand}"
+                  Padding="16,8" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

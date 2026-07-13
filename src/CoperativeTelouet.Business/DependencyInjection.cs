@@ -54,10 +54,6 @@ public static class DependencyInjection
             GenericService<Tiers, TiersDto, CreateTiersDto, UpdateTiersDto>>();
 
         services.AddScoped<
-            IGenericService<ServiceItem, ServiceItemDto, CreateServiceItemDto, UpdateServiceItemDto>,
-            GenericService<ServiceItem, ServiceItemDto, CreateServiceItemDto, UpdateServiceItemDto>>();
-
-        services.AddScoped<
             IGenericService<Charge, ChargeDto, CreateChargeDto, UpdateChargeDto>,
             GenericService<Charge, ChargeDto, CreateChargeDto, UpdateChargeDto>>();
 
@@ -66,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IChambreFroideService, ChambreFroideService>();
         services.AddScoped<IVarietePommeService, VarietePommeService>();
         services.AddScoped<IProduitService, ProduitService>();
+        services.AddScoped<IServiceItemService, ServiceItemService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IFournisseurService, FournisseurService>();
         services.AddScoped<IArticleSuggestionService, ArticleSuggestionService>();
